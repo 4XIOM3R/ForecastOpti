@@ -4,10 +4,7 @@ import plotly.graph_objects as go
 from pathlib import Path
 
 
-# ============================================================
 # PATH
-# ============================================================
-
 ROOT = Path(__file__).resolve().parent.parent
 
 FORECAST_DIR = ROOT / "outputs" / "forecasts"
@@ -16,21 +13,15 @@ OPTIMIZATION_DIR = ROOT / "outputs" / "optimization"
 CLUSTERING_DIR = ROOT / "outputs" / "clustering"
 
 
-# ============================================================
 # PAGE
-# ============================================================
-
 st.set_page_config(
-    page_title="ForecastOpti",
+    page_title="Demand Forecasting",
+    page_icon=str(ROOT / "assets" / "icon.png"),
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-
-# ============================================================
 # CSS
-# ============================================================
-
 st.markdown(
     """
 <style>
@@ -519,10 +510,7 @@ div[data-testid="stMetricValue"] {
 )
 
 
-# ============================================================
 # HELPERS
-# ============================================================
-
 def load_csv(folder, filename):
 
     path = folder / filename
@@ -580,10 +568,7 @@ def show_card(title, description=""):
     )
 
 
-# ============================================================
 # DATA
-# ============================================================
-
 @st.cache_data
 def load_data():
 
@@ -672,11 +657,7 @@ if segments is None:
 if segment_summary is None:
     segment_summary = pd.DataFrame()
 
-
-# ============================================================
 # MODEL
-# ============================================================
-
 if (
     improvement is not None
     and len(improvement) > 0
@@ -723,11 +704,7 @@ mae_improvement = float(
     )
 )
 
-
-# ============================================================
 # KPI
-# ============================================================
-
 if "actual_sales" in forecast.columns:
 
     actual_total = forecast[
@@ -782,11 +759,7 @@ else:
 
     recommended_stock = 0
 
-
-# ============================================================
 # NAV
-# ============================================================
-
 PAGES = [
     "Overview",
     "Forecast",
@@ -802,11 +775,7 @@ if "page" not in st.session_state:
 
     st.session_state.page = "Overview"
 
-
-# ============================================================
 # SIDEBAR
-# ============================================================
-
 with st.sidebar:
 
     st.markdown(
@@ -901,10 +870,7 @@ Forecasting - Inventory - Segmentation
 page = st.session_state.page
 
 
-# ============================================================
 # HEADER
-# ============================================================
-
 st.markdown(
     f"""
 <div class="top-header">
@@ -931,10 +897,7 @@ System Online
 )
 
 
-# ============================================================
 # CHART
-# ============================================================
-
 def base_layout(fig, height=330):
 
     fig.update_layout(
@@ -1275,9 +1238,7 @@ def risk_chart(high, medium, low):
     )
 
 
-# ============================================================
 # OVERVIEW
-# ============================================================
 
 if page == "Overview":
 
@@ -1824,10 +1785,7 @@ Evaluation of the final forecasting model.
     )
 
 
-# ============================================================
 # FORECAST
-# ============================================================
-
 elif page == "Forecast":
 
     st.markdown(
@@ -2034,10 +1992,7 @@ Detailed prediction output.
         )
 
 
-# ============================================================
 # INVENTORY
-# ============================================================
-
 elif page == "Inventory Analysis":
 
     st.markdown(
@@ -2281,11 +2236,7 @@ Store-Item Profile
         use_container_width=True
     )
 
-
-# ============================================================
 # SEGMENTATION
-# ============================================================
-
 elif page == "Demand Segmentation":
 
     st.markdown(
@@ -2504,10 +2455,7 @@ Detailed segmentation output.
     )
 
 
-# ============================================================
 # RECOMMENDATIONS
-# ============================================================
-
 elif page == "Recommendations":
 
     st.markdown(
@@ -2644,10 +2592,7 @@ Prioritized inventory recommendations by store-item.
     )
 
 
-# ============================================================
 # AI
-# ============================================================
-
 elif page == "AI Analysis":
 
     st.markdown(
@@ -2797,10 +2742,7 @@ Business Insights
         )
 
 
-# ============================================================
 # HEALTH
-# ============================================================
-
 elif page == "System Health":
 
     st.markdown(
