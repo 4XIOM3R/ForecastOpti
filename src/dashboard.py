@@ -1,16 +1,14 @@
 import streamlit as st
 import pandas as pd
+import plotly.graph_objects as go
 from pathlib import Path
 from textwrap import dedent
 
 
-
+# ============================================================
 # FORECASTOPTI
-# STREAMLIT BUSINESS INTELLIGENCE DASHBOARD
+# ============================================================
 
-
-
-# PROJECT PATH
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 
 FORECAST_DIR = PROJECT_DIR / "outputs" / "forecasts"
@@ -18,19 +16,24 @@ EVALUATION_DIR = PROJECT_DIR / "outputs" / "evaluation"
 OPTIMIZATION_DIR = PROJECT_DIR / "outputs" / "optimization"
 CLUSTERING_DIR = PROJECT_DIR / "outputs" / "clustering"
 
+
+# ============================================================
 # PAGE CONFIG
+# ============================================================
+
 st.set_page_config(
     page_title="ForecastOpti",
+    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# HTML RENDERER
+
+# ============================================================
+# GLOBAL HTML
+# ============================================================
+
 def html(markup):
-    """
-    Render HTML tanpa indentation yang menyebabkan
-    Streamlit menganggapnya sebagai code block.
-    """
 
     cleaned = dedent(markup).strip()
 
@@ -45,24 +48,12 @@ def html(markup):
         unsafe_allow_html=True
     )
 
+
+# ============================================================
 # SAFE DATAFRAME
+# ============================================================
+
 def safe_dataframe(df):
-    """
-    Mengamankan DataFrame sebelum dikirim ke Streamlit.
-
-    Masalah yang diamankan:
-    - mixed int/string
-    - object dtype
-    - nilai seperti:
-        10
-        20
-        Tinggi
-
-    Hal ini mencegah PyArrow:
-    ArrowInvalid:
-    Could not convert 'Tinggi'
-    with type str: tried to convert to int64
-    """
 
     if df is None:
         return pd.DataFrame()
@@ -83,18 +74,16 @@ def safe_dataframe(df):
 
     return result
 
-# DATAFRAME DISPLAY
 
 def display_dataframe(
     df,
-    hide_index=True,
     height=None
 ):
 
     safe_df = safe_dataframe(df)
 
     kwargs = {
-        "hide_index": hide_index,
+        "hide_index": True,
         "width": "stretch",
     }
 
@@ -106,7 +95,11 @@ def display_dataframe(
         **kwargs
     )
 
+
+# ============================================================
 # VALUE HELPERS
+# ============================================================
+
 def safe_float(
     value,
     default=0
@@ -168,17 +161,25 @@ def safe_text(
     return str(value)
 
 
-def money(value):
-
-    return f"{safe_float(value):,.0f}"
-
-
 def number(value):
 
     return f"{safe_float(value):,.2f}"
 
 
-# CSV LOADER
+def integer(value):
+
+    return f"{safe_float(value):,.0f}"
+
+
+def percentage(value):
+
+    return f"{safe_float(value):.2f}%"
+
+
+# ============================================================
+# CSV
+# ============================================================
+
 def load_csv(
     directory,
     filename
@@ -189,53 +190,112 @@ def load_csv(
     if not path.exists():
         return None
 
-    return pd.read_csv(path)
-    
+    try:
+
+        return pd.read_csv(path)
+
+    except Exception:
+
+        return None
+
+
+# ============================================================
 # CUSTOM CSS
-html("""
+# ============================================================
+
+html(
+"""
 <style>
 
-/* GLOBAL VARIABLES */
+/* ============================================================
+   GLOBAL
+   ============================================================ */
 
 :root {
 
+    --bg: #f6f7fb;
+
+    --surface: #ffffff;
+
+    --surface-soft: #f9fafb;
+
+    --border: #e7e9ee;
+
+    --text: #1f2937;
+
+    --muted: #8a93a3;
+
     --blue: #2563eb;
-    --blue-dark: #1d4ed8;
 
-    --navy: #172033;
+    --blue-soft: #eef4ff;
 
-    --text: #344054;
-    --muted: #667085;
+    --green: #18a66a;
 
-    --border: #e4e7ec;
+    --green-soft: #eaf8f1;
 
-    --background: #f5f7fa;
+    --orange: #e89b25;
 
-    --white: #ffffff;
+    --orange-soft: #fff6e8;
 
-    --green: #16a34a;
-    --orange: #f59e0b;
-    --red: #dc2626;
+    --red: #df5757;
+
+    --red-soft: #fff0f0;
+
+    --dark: #151923;
 }
 
 
-/*MAIN APPLICATION */
-
 .stApp {
 
-    background: #f5f7fa !important;
+    background:
+        var(--bg) !important;
 
-    color: #344054 !important;
+    color:
+        var(--text) !important;
 }
 
 
 .block-container {
 
-    max-width: 1450px !important;
+    max-width:
+        1500px !important;
 
-    padding-top: 1.5rem !important;
+    padding-top:
+        1.1rem !important;
 
-    padding-bottom: 3rem !important;
+    padding-bottom:
+        3rem !important;
+
+    padding-left:
+        2rem !important;
+
+    padding-right:
+        2rem !important;
+}
+
+
+/* ============================================================
+   REMOVE DEFAULT STREAMLIT ELEMENTS
+   ============================================================ */
+
+#MainMenu {
+
+    visibility:
+        hidden;
+}
+
+
+footer {
+
+    visibility:
+        hidden;
+}
+
+
+header {
+
+    background:
+        transparent !important;
 }
 
 
@@ -243,43 +303,23 @@ html("""
    SIDEBAR
    ============================================================ */
 
-/*
-   IMPORTANT:
-
-   Sidebar ForecastOpti dibuat selalu LIGHT.
-
-   Jadi walaupun Streamlit berada pada Dark Mode,
-   sidebar tetap:
-
-   background = putih
-   text       = dark
-*/
-
 [data-testid="stSidebar"] {
 
-    background: #ffffff !important;
+    background:
+        #ffffff !important;
 
-    color: #344054 !important;
-
-    border-right: 1px solid #e4e7ec !important;
+    border-right:
+        1px solid #e7e9ee !important;
 }
-
-
-/*
-   Jangan menggunakan:
-
-   [data-testid="stSidebar"] *
-
-   dengan color global karena dapat menimpa
-   warna button active.
-*/
 
 
 [data-testid="stSidebar"] > div:first-child {
 
-    background: #ffffff !important;
+    background:
+        #ffffff !important;
 
-    padding-top: 1rem !important;
+    padding:
+        1.2rem 0.8rem !important;
 }
 
 
@@ -287,340 +327,178 @@ html("""
    SIDEBAR BRAND
    ============================================================ */
 
-.sidebar-brand {
+.brand {
 
     padding:
-        8px
-        8px
-        22px
-        8px;
+        0.4rem 0.65rem 1.5rem 0.65rem;
 }
 
 
-.sidebar-brand-label {
-
-    color: #2563eb !important;
-
-    font-size: 10px !important;
-
-    font-weight: 800 !important;
-
-    letter-spacing: .18em !important;
-
-    margin-bottom: 4px !important;
-}
-
-
-.sidebar-brand-title {
-
-    color: #172033 !important;
-
-    font-size: 21px !important;
-
-    font-weight: 800 !important;
-
-    line-height: 1.15 !important;
-}
-
-
-.sidebar-brand-subtitle {
-
-    color: #98a2b3 !important;
-
-    font-size: 11px !important;
-
-    margin-top: 5px !important;
-
-    line-height: 1.4 !important;
-}
-
-
-/* ============================================================
-   SIDEBAR SECTION LABEL
-   ============================================================ */
-
-.sidebar-section-label {
-
-    color: #98a2b3 !important;
-
-    font-size: 10px !important;
-
-    font-weight: 800 !important;
-
-    letter-spacing: .12em !important;
-
-    text-transform: uppercase !important;
-
-    padding:
-        0
-        8px
-        8px
-        8px !important;
-}
-
-
-/* ============================================================
-   NAV BUTTON CONTAINER
-   ============================================================ */
-
-[data-testid="stSidebar"] .nav-button,
-[data-testid="stSidebar"] .nav-active {
-
-    width: 100% !important;
-}
-
-
-/* ============================================================
-   NORMAL NAV BUTTON
-   ============================================================ */
-
-[data-testid="stSidebar"]
-.nav-button
-button {
-
-    width: 100% !important;
-
-    min-height: 42px !important;
-
-    padding:
-        8px
-        12px !important;
-
-    margin:
-        2px
-        0 !important;
-
-    border-radius: 10px !important;
-
-    border:
-        1px solid
-        transparent !important;
-
-    background:
-        #ffffff !important;
+.brand-name {
 
     color:
-        #344054 !important;
+        #172033 !important;
 
     font-size:
-        13px !important;
+        20px !important;
 
     font-weight:
-        600 !important;
+        800 !important;
 
-    text-align:
-        left !important;
-
-    box-shadow:
-        none !important;
-
-    transition:
-        background-color .15s ease,
-        color .15s ease,
-        border-color .15s ease !important;
+    letter-spacing:
+        -0.03em !important;
 }
 
 
-/* ============================================================
-   NORMAL NAV TEXT
-   ============================================================ */
-
-[data-testid="stSidebar"]
-.nav-button
-button p {
-
-    color: #344054 !important;
-
-    font-size: 13px !important;
-
-    font-weight: 600 !important;
-
-    text-align: left !important;
-}
-
-
-[data-testid="stSidebar"]
-.nav-button
-button span {
-
-    color: #344054 !important;
-}
-
-
-[data-testid="stSidebar"]
-.nav-button
-button div {
-
-    color: #344054 !important;
-}
-
-
-/* ============================================================
-   NAV HOVER
-   ============================================================ */
-
-[data-testid="stSidebar"]
-.nav-button
-button:hover {
-
-    background:
-        #f2f4f7 !important;
+.brand-subtitle {
 
     color:
-        #172033 !important;
+        #9aa2b1 !important;
 
-    border:
-        1px solid
-        #eaecf0 !important;
-}
+    font-size:
+        10px !important;
 
-
-[data-testid="stSidebar"]
-.nav-button
-button:hover p {
-
-    color:
-        #172033 !important;
+    margin-top:
+        4px !important;
 }
 
 
 /* ============================================================
-   ACTIVE NAV BUTTON
+   SIDEBAR LABEL
    ============================================================ */
 
-[data-testid="stSidebar"]
-.nav-active
-button {
+.sidebar-label {
 
-    width: 100% !important;
+    color:
+        #a0a7b4 !important;
 
-    min-height: 42px !important;
+    font-size:
+        9px !important;
+
+    font-weight:
+        800 !important;
+
+    text-transform:
+        uppercase !important;
+
+    letter-spacing:
+        .14em !important;
 
     padding:
-        8px
-        12px !important;
+        0.2rem 0.65rem 0.5rem 0.65rem !important;
+}
+
+
+/* ============================================================
+   NAVIGATION BUTTON
+   ============================================================ */
+
+[data-testid="stSidebar"]
+.stButton {
 
     margin:
-        2px
         0 !important;
+
+    padding:
+        0 !important;
+}
+
+
+[data-testid="stSidebar"]
+.stButton > button {
+
+    width:
+        100% !important;
+
+    min-height:
+        42px !important;
+
+    border:
+        1px solid transparent !important;
 
     border-radius:
         10px !important;
 
     background:
-        #eff6ff !important;
-
-    border:
-        1px solid
-        #dbeafe !important;
+        transparent !important;
 
     color:
-        #1d4ed8 !important;
-
-    font-size:
-        13px !important;
-
-    font-weight:
-        800 !important;
+        #667085 !important;
 
     text-align:
         left !important;
+
+    font-size:
+        12px !important;
+
+    font-weight:
+        600 !important;
+
+    margin:
+        2px 0 !important;
+
+    padding:
+        8px 11px !important;
+
+    box-shadow:
+        none !important;
+}
+
+
+[data-testid="stSidebar"]
+.stButton > button:hover {
+
+    background:
+        #f5f7fa !important;
+
+    color:
+        #172033 !important;
+
+    border-color:
+        #edf0f4 !important;
+}
+
+
+[data-testid="stSidebar"]
+.stButton > button p {
+
+    color:
+        inherit !important;
+
+    font-size:
+        12px !important;
+
+    font-weight:
+        600 !important;
+}
+
+
+/* ============================================================
+   ACTIVE NAV
+   ============================================================ */
+
+[data-testid="stSidebar"]
+.nav-active {
+
+    background:
+        #edf4ff !important;
+
+    color:
+        #2563eb !important;
+
+    border:
+        1px solid #dce9ff !important;
 
     box-shadow:
         inset 3px 0 0 #2563eb !important;
 }
 
 
-/* ============================================================
-   ACTIVE NAV TEXT
-   ============================================================ */
-
 [data-testid="stSidebar"]
-.nav-active
-button p {
+.nav-active p {
 
     color:
-        #1d4ed8 !important;
-
-    font-size:
-        13px !important;
-
-    font-weight:
-        800 !important;
-}
-
-
-[data-testid="stSidebar"]
-.nav-active
-button span {
-
-    color:
-        #1d4ed8 !important;
-}
-
-
-[data-testid="stSidebar"]
-.nav-active
-button div {
-
-    color:
-        #1d4ed8 !important;
-}
-
-
-/* ============================================================
-   CLEAR CACHE BUTTON
-   ============================================================ */
-
-[data-testid="stSidebar"]
-.stButton
-button {
-
-    background:
-        #ffffff !important;
-
-    color:
-        #344054 !important;
-
-    border:
-        1px solid
-        #e4e7ec !important;
-
-    border-radius:
-        9px !important;
-
-    font-size:
-        12px !important;
-
-    font-weight:
-        700 !important;
-}
-
-
-[data-testid="stSidebar"]
-.stButton
-button p {
-
-    color:
-        #344054 !important;
-
-    font-size:
-        12px !important;
-
-    font-weight:
-        700 !important;
-}
-
-
-[data-testid="stSidebar"]
-.stButton
-button:hover {
-
-    background:
-        #f2f4f7 !important;
-
-    color:
-        #172033 !important;
+        #2563eb !important;
 }
 
 
@@ -630,24 +508,125 @@ button:hover {
 
 .sidebar-footer {
 
+    border-top:
+        1px solid #edf0f3;
+
     margin-top:
-        18px !important;
+        1.5rem;
 
     padding:
-        12px 8px !important;
-
-    border-top:
-        1px solid
-        #e4e7ec !important;
+        1rem 0.65rem;
 
     color:
-        #98a2b3 !important;
+        #a0a7b4;
 
     font-size:
-        10px !important;
+        9px;
 
     line-height:
-        1.5 !important;
+        1.6;
+}
+
+
+/* ============================================================
+   TOP HEADER
+   ============================================================ */
+
+.topbar {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    margin-bottom:
+        1.2rem;
+}
+
+
+.page-title {
+
+    color:
+        #172033 !important;
+
+    font-size:
+        24px !important;
+
+    font-weight:
+        800 !important;
+
+    letter-spacing:
+        -0.03em !important;
+
+    margin:
+        0 !important;
+}
+
+
+.page-subtitle {
+
+    color:
+        #9aa2b1 !important;
+
+    font-size:
+        11px !important;
+
+    margin-top:
+        4px !important;
+}
+
+
+.status-pill {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        6px;
+
+    background:
+        #ecfdf3;
+
+    color:
+        #168653;
+
+    border:
+        1px solid #d7f5e4;
+
+    border-radius:
+        999px;
+
+    padding:
+        6px 10px;
+
+    font-size:
+        10px;
+
+    font-weight:
+        800;
+}
+
+
+.status-dot {
+
+    width:
+        6px;
+
+    height:
+        6px;
+
+    background:
+        #20b875;
+
+    border-radius:
+        50%;
 }
 
 
@@ -661,81 +640,173 @@ button:hover {
         linear-gradient(
             135deg,
             #172033 0%,
-            #223a67 55%,
+            #263e6e 60%,
             #2563eb 100%
-        ) !important;
-
-    padding:
-        30px 32px !important;
+        );
 
     border-radius:
-        18px !important;
+        18px;
+
+    padding:
+        26px 30px;
 
     margin-bottom:
-        24px !important;
+        22px;
 
     box-shadow:
-        0 10px 30px
-        rgba(
-            16,
-            24,
-            40,
-            0.10
-        ) !important;
+        0 14px 35px
+        rgba(31, 41, 55, .10);
 }
 
 
-.hero-eyebrow {
+.hero-label {
 
     color:
-        #93c5fd !important;
+        #a9c8ff;
 
     font-size:
-        10px !important;
+        9px;
 
     font-weight:
-        800 !important;
+        800;
 
     letter-spacing:
-        .18em !important;
-
-    margin-bottom:
-        6px !important;
+        .18em;
 }
 
 
 .hero-title {
 
     color:
-        #ffffff !important;
+        #ffffff;
 
     font-size:
-        32px !important;
+        29px;
 
     font-weight:
-        800 !important;
+        800;
 
-    line-height:
-        1.1 !important;
-
-    margin:
-        0 !important;
+    margin-top:
+        6px;
 }
 
 
 .hero-description {
 
     color:
-        #dbe5f1 !important;
+        #d9e5f7;
 
     font-size:
-        13px !important;
+        12px;
 
     line-height:
-        1.6 !important;
+        1.6;
+
+    max-width:
+        700px;
 
     margin-top:
-        8px !important;
+        7px;
+}
+
+
+/* ============================================================
+   KPI CARD
+   ============================================================ */
+
+.kpi {
+
+    background:
+        #ffffff;
+
+    border:
+        1px solid #e8ebef;
+
+    border-radius:
+        14px;
+
+    padding:
+        15px 17px;
+
+    min-height:
+        105px;
+
+    box-shadow:
+        0 5px 18px
+        rgba(16, 24, 40, .035);
+}
+
+
+.kpi-label {
+
+    color:
+        #98a2b3;
+
+    font-size:
+        10px;
+
+    font-weight:
+        600;
+}
+
+
+.kpi-value {
+
+    color:
+        #172033;
+
+    font-size:
+        25px;
+
+    font-weight:
+        800;
+
+    margin-top:
+        8px;
+
+    letter-spacing:
+        -0.03em;
+}
+
+
+.kpi-description {
+
+    color:
+        #98a2b3;
+
+    font-size:
+        9px;
+
+    margin-top:
+        4px;
+}
+
+
+.kpi-blue {
+
+    border-top:
+        3px solid #2563eb;
+}
+
+
+.kpi-green {
+
+    border-top:
+        3px solid #18a66a;
+}
+
+
+.kpi-orange {
+
+    border-top:
+        3px solid #e89b25;
+}
+
+
+.kpi-red {
+
+    border-top:
+        3px solid #df5757;
 }
 
 
@@ -743,41 +814,48 @@ button:hover {
    SECTION
    ============================================================ */
 
-.section-title {
+.section-head {
 
-    color:
-        #172033 !important;
+    display:
+        flex;
 
-    font-size:
-        18px !important;
+    align-items:
+        flex-end;
 
-    font-weight:
-        800 !important;
+    justify-content:
+        space-between;
 
     margin-top:
-        24px !important;
+        24px;
 
     margin-bottom:
-        10px !important;
+        10px;
 }
 
 
-.section-subtitle {
+.section-title {
 
     color:
-        #667085 !important;
+        #172033;
 
     font-size:
-        12px !important;
+        16px;
 
-    line-height:
-        1.5 !important;
+    font-weight:
+        800;
+}
+
+
+.section-description {
+
+    color:
+        #9aa2b1;
+
+    font-size:
+        10px;
 
     margin-top:
-        -3px !important;
-
-    margin-bottom:
-        15px !important;
+        3px;
 }
 
 
@@ -785,37 +863,218 @@ button:hover {
    CARD
    ============================================================ */
 
-.card {
+.dashboard-card {
 
     background:
-        #ffffff !important;
+        #ffffff;
 
     border:
-        1px solid
-        #e4e7ec !important;
+        1px solid #e8ebef;
 
     border-radius:
-        14px !important;
+        15px;
 
     padding:
-        18px !important;
+        17px;
 
     box-shadow:
-        0 3px 12px
-        rgba(
-            16,
-            24,
-            40,
-            0.035
-        ) !important;
+        0 5px 18px
+        rgba(16, 24, 40, .035);
+
+    margin-bottom:
+        16px;
+}
+
+
+.card-title {
 
     color:
-        #344054 !important;
+        #252d3d;
+
+    font-size:
+        13px;
+
+    font-weight:
+        800;
+}
+
+
+.card-subtitle {
+
+    color:
+        #9aa2b1;
+
+    font-size:
+        9px;
+
+    margin-top:
+        3px;
+
+    margin-bottom:
+        10px;
 }
 
 
 /* ============================================================
-   METRIC
+   RISK
+   ============================================================ */
+
+.risk-card {
+
+    background:
+        #ffffff;
+
+    border:
+        1px solid #e8ebef;
+
+    border-radius:
+        15px;
+
+    padding:
+        18px;
+
+    height:
+        100%;
+
+    box-shadow:
+        0 5px 18px
+        rgba(16, 24, 40, .035);
+}
+
+
+.risk-item {
+
+    padding:
+        13px 0;
+
+    border-bottom:
+        1px solid #f0f1f4;
+}
+
+
+.risk-item:last-child {
+
+    border-bottom:
+        none;
+}
+
+
+.risk-row {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+}
+
+
+.risk-name {
+
+    color:
+        #667085;
+
+    font-size:
+        11px;
+
+    font-weight:
+        600;
+}
+
+
+.risk-number {
+
+    color:
+        #172033;
+
+    font-size:
+        20px;
+
+    font-weight:
+        800;
+}
+
+
+.risk-badge {
+
+    display:
+        inline-block;
+
+    padding:
+        4px 8px;
+
+    border-radius:
+        999px;
+
+    font-size:
+        8px;
+
+    font-weight:
+        800;
+
+    margin-top:
+        4px;
+}
+
+
+.risk-high {
+
+    background:
+        #fff0f0;
+
+    color:
+        #c43d3d;
+}
+
+
+.risk-medium {
+
+    background:
+        #fff6e8;
+
+    color:
+        #b87913;
+}
+
+
+.risk-low {
+
+    background:
+        #eaf8f1;
+
+    color:
+        #168653;
+}
+
+
+/* ============================================================
+   FILTER
+   ============================================================ */
+
+.filter-card {
+
+    background:
+        #ffffff;
+
+    border:
+        1px solid #e8ebef;
+
+    border-radius:
+        13px;
+
+    padding:
+        10px 13px;
+
+    margin-bottom:
+        15px;
+}
+
+
+/* ============================================================
+   STREAMLIT METRICS
    ============================================================ */
 
 div[data-testid="stMetric"] {
@@ -824,30 +1083,24 @@ div[data-testid="stMetric"] {
         #ffffff !important;
 
     border:
-        1px solid
-        #e4e7ec !important;
+        1px solid #e8ebef !important;
 
     border-radius:
         14px !important;
 
     padding:
-        15px !important;
+        14px !important;
 
     box-shadow:
-        0 3px 12px
-        rgba(
-            16,
-            24,
-            40,
-            0.035
-        ) !important;
+        0 5px 18px
+        rgba(16, 24, 40, .035) !important;
 }
 
 
 div[data-testid="stMetricLabel"] {
 
     color:
-        #667085 !important;
+        #98a2b3 !important;
 }
 
 
@@ -861,22 +1114,46 @@ div[data-testid="stMetricValue"] {
 }
 
 
-div[data-testid="stMetricDelta"] {
-
-    color:
-        #667085 !important;
-}
-
-
 /* ============================================================
    INPUT
    ============================================================ */
 
+.stSelectbox label,
+.stTextInput label {
+
+    color:
+        #667085 !important;
+
+    font-size:
+        10px !important;
+
+    font-weight:
+        700 !important;
+}
+
+
 .stSelectbox > div > div,
 .stTextInput > div > div {
 
+    background:
+        #ffffff !important;
+
+    border-color:
+        #e4e7ec !important;
+
     border-radius:
         9px !important;
+
+    color:
+        #344054 !important;
+}
+
+
+.stSelectbox *,
+.stTextInput * {
+
+    color:
+        #344054 !important;
 }
 
 
@@ -893,188 +1170,13 @@ div[data-testid="stMetricDelta"] {
         700 !important;
 
     border:
-        1px solid
-        #e4e7ec !important;
-}
-
-
-/* ============================================================
-   INSIGHT
-   ============================================================ */
-
-.insight {
+        1px solid #e4e7ec !important;
 
     background:
         #ffffff !important;
 
-    border:
-        1px solid
-        #e4e7ec !important;
-
-    border-left:
-        4px solid
-        #2563eb !important;
-
-    border-radius:
-        0 9px 9px 0 !important;
-
-    padding:
-        12px 15px !important;
-
-    margin-bottom:
-        9px !important;
-
     color:
         #344054 !important;
-
-    font-size:
-        13px !important;
-
-    line-height:
-        1.55 !important;
-}
-
-
-/* ============================================================
-   BADGES
-   ============================================================ */
-
-.badge {
-
-    display:
-        inline-block;
-
-    padding:
-        5px 10px;
-
-    border-radius:
-        999px;
-
-    font-size:
-        11px;
-
-    font-weight:
-        800;
-}
-
-
-.badge-high {
-
-    background:
-        #fef2f2;
-
-    color:
-        #b91c1c;
-}
-
-
-.badge-medium {
-
-    background:
-        #fff7ed;
-
-    color:
-        #c2410c;
-}
-
-
-.badge-low {
-
-    background:
-        #ecfdf3;
-
-    color:
-        #15803d;
-}
-
-
-/* ============================================================
-   HEALTH CARD
-   ============================================================ */
-
-.health-card {
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        space-between;
-
-    background:
-        #ffffff;
-
-    border:
-        1px solid
-        #e4e7ec;
-
-    border-radius:
-        12px;
-
-    padding:
-        13px 16px;
-
-    margin-bottom:
-        9px;
-}
-
-
-.health-name {
-
-    color:
-        #172033;
-
-    font-size:
-        13px;
-
-    font-weight:
-        700;
-}
-
-
-.health-status {
-
-    color:
-        #15803d;
-
-    font-size:
-        12px;
-
-    font-weight:
-        800;
-
-    background:
-        #ecfdf3;
-
-    padding:
-        5px 10px;
-
-    border-radius:
-        999px;
-}
-
-
-/* ============================================================
-   DIVIDER
-   ============================================================ */
-
-hr {
-
-    border-color:
-        #e4e7ec !important;
-}
-
-
-/* ============================================================
-   CODE BLOCK
-   ============================================================ */
-
-[data-testid="stCodeBlock"] {
-
-    border-radius:
-        12px !important;
 }
 
 
@@ -1093,7 +1195,7 @@ hr {
 
 
 /* ============================================================
-   ALERTS
+   ALERT
    ============================================================ */
 
 [data-testid="stAlert"] {
@@ -1107,16 +1209,17 @@ hr {
    DARK MODE PROTECTION
    ============================================================ */
 
-/*
-   Beberapa elemen Streamlit menggunakan CSS theme
-   dengan specificity tinggi.
-
-   Kita override elemen teks utama agar dashboard
-   tetap readable ketika browser/Streamlit berada
-   pada dark mode.
-*/
-
 @media (prefers-color-scheme: dark) {
+
+    .stApp {
+
+        background:
+            #f6f7fb !important;
+
+        color:
+            #344054 !important;
+    }
+
 
     [data-testid="stSidebar"] {
 
@@ -1128,25 +1231,57 @@ hr {
     }
 
 
+    [data-testid="stSidebar"] * {
+
+        color:
+            inherit;
+    }
+
+
     [data-testid="stSidebar"]
-    .sidebar-brand-title {
+    .stButton > button {
+
+        background:
+            #ffffff !important;
+
+        color:
+            #667085 !important;
+    }
+
+
+    [data-testid="stSidebar"]
+    .stButton > button p {
+
+        color:
+            #667085 !important;
+    }
+
+
+    .page-title,
+    .section-title,
+    .card-title,
+    .kpi-value {
 
         color:
             #172033 !important;
     }
 
 
-    [data-testid="stSidebar"]
-    .sidebar-section-label {
+    .page-subtitle,
+    .section-description,
+    .card-subtitle,
+    .kpi-label,
+    .kpi-description {
 
         color:
-            #98a2b3 !important;
+            #8a93a3 !important;
     }
 
 
-    [data-testid="stSidebar"]
-    .nav-button
-    button {
+    .dashboard-card,
+    .risk-card,
+    .kpi,
+    .filter-card {
 
         background:
             #ffffff !important;
@@ -1156,71 +1291,24 @@ hr {
     }
 
 
-    [data-testid="stSidebar"]
-    .nav-button
-    button p {
-
-        color:
-            #344054 !important;
-    }
-
-
-    [data-testid="stSidebar"]
-    .nav-active
-    button {
-
-        background:
-            #eff6ff !important;
-
-        color:
-            #1d4ed8 !important;
-    }
-
-
-    [data-testid="stSidebar"]
-    .nav-active
-    button p {
-
-        color:
-            #1d4ed8 !important;
-    }
-
-
-    [data-testid="stSidebar"]
-    .stButton
-    button {
+    .stSelectbox > div > div,
+    .stTextInput > div > div {
 
         background:
             #ffffff !important;
 
         color:
             #344054 !important;
-    }
-
-
-    [data-testid="stSidebar"]
-    .stButton
-    button p {
-
-        color:
-            #344054 !important;
-    }
-
-
-    [data-testid="stSidebar"]
-    .sidebar-footer {
-
-        color:
-            #98a2b3 !important;
     }
 }
 
 </style>
-""")
+"""
+)
 
 
 # ============================================================
-# LOAD DATA
+# DATA
 # ============================================================
 
 @st.cache_data
@@ -1258,8 +1346,7 @@ def load_data():
 
     if (
         forecast is not None
-        and
-        "date" in forecast.columns
+        and "date" in forecast.columns
     ):
 
         forecast["date"] = pd.to_datetime(
@@ -1276,10 +1363,6 @@ def load_data():
         segment_summary
     )
 
-
-# ============================================================
-# INITIALIZE DATA
-# ============================================================
 
 try:
 
@@ -1304,14 +1387,13 @@ except Exception as error:
 
 
 # ============================================================
-# DATA VALIDATION
+# VALIDATION
 # ============================================================
 
 if forecast is None:
 
     st.error(
-        "File tidak ditemukan:\n\n"
-        "outputs/forecasts/test_forecast.csv"
+        "outputs/forecasts/test_forecast.csv tidak ditemukan."
     )
 
     st.stop()
@@ -1320,8 +1402,7 @@ if forecast is None:
 if optimization is None:
 
     st.error(
-        "File tidak ditemukan:\n\n"
-        "outputs/optimization/inventory_recommendations.csv"
+        "outputs/optimization/inventory_recommendations.csv tidak ditemukan."
     )
 
     st.stop()
@@ -1343,16 +1424,14 @@ if segment_summary is None:
 
 if (
     improvement is not None
-    and
-    len(improvement) > 1
+    and len(improvement) > 1
 ):
 
     final_model = improvement.iloc[1]
 
 elif (
     improvement is not None
-    and
-    len(improvement) > 0
+    and len(improvement) > 0
 ):
 
     final_model = improvement.iloc[-1]
@@ -1369,7 +1448,6 @@ test_mae = safe_float(
     )
 )
 
-
 test_rmse = safe_float(
     final_model.get(
         "test_rmse",
@@ -1377,14 +1455,12 @@ test_rmse = safe_float(
     )
 )
 
-
 test_wape = safe_float(
     final_model.get(
         "test_wape",
         0
     )
 )
-
 
 model_name = safe_text(
     final_model.get(
@@ -1395,7 +1471,7 @@ model_name = safe_text(
 
 
 # ============================================================
-# TOTAL ACTUAL
+# GLOBAL DATA METRICS
 # ============================================================
 
 if "actual_sales" in forecast.columns:
@@ -1411,30 +1487,20 @@ else:
     total_actual = 0
 
 
-# ============================================================
-# TOTAL STORE ITEMS
-# ============================================================
+if "predicted_sales" in forecast.columns:
 
-if (
-    not segments.empty
-    and
-    "store_id" in segments.columns
-    and
-    "item_id" in segments.columns
-):
-
-    total_store_items = (
-        segments[
-            [
-                "store_id",
-                "item_id"
-            ]
-        ]
-        .drop_duplicates()
-        .shape[0]
+    total_forecast = safe_float(
+        forecast[
+            "predicted_sales"
+        ].sum()
     )
 
-elif (
+else:
+
+    total_forecast = 0
+
+
+if (
     "store_id" in optimization.columns
     and
     "item_id" in optimization.columns
@@ -1456,18 +1522,38 @@ else:
     total_store_items = 0
 
 
+if "recommended_stock" in optimization.columns:
+
+    total_recommended_stock = safe_float(
+        optimization[
+            "recommended_stock"
+        ].sum()
+    )
+
+else:
+
+    total_recommended_stock = 0
+
+
 # ============================================================
 # NAVIGATION
 # ============================================================
 
 PAGES = [
-    "Overview",
-    "Forecast",
-    "Inventory Analysis",
-    "Demand Segmentation",
-    "Recommendations",
-    "AI Analysis",
-    "System Health"
+
+    ("⌂", "Overview"),
+
+    ("↗", "Forecast"),
+
+    ("▣", "Inventory Analysis"),
+
+    ("◈", "Demand Segmentation"),
+
+    ("✓", "Recommendations"),
+
+    ("✦", "AI Analysis"),
+
+    ("◉", "System Health")
 ]
 
 
@@ -1484,17 +1570,13 @@ with st.sidebar:
 
     html(
         """
-<div class="sidebar-brand">
+<div class="brand">
 
-<div class="sidebar-brand-label">
-FORECASTOPTI
+<div class="brand-name">
+ForecastOpti
 </div>
 
-<div class="sidebar-brand-title">
-BI Dashboard
-</div>
-
-<div class="sidebar-brand-subtitle">
+<div class="brand-subtitle">
 Demand & Inventory Intelligence
 </div>
 
@@ -1505,47 +1587,41 @@ Demand & Inventory Intelligence
 
     html(
         """
-<div class="sidebar-section-label">
-Navigation
+<div class="sidebar-label">
+Workspace
 </div>
 """
     )
 
 
-    for page_name in PAGES:
+    for icon, page_name in PAGES:
 
-        is_active = (
+        active = (
             st.session_state.forecastopti_page
             == page_name
         )
 
-        if is_active:
+        if active:
 
-            button_class = "nav-active"
-
-        else:
-
-            button_class = "nav-button"
-
-
-        st.markdown(
-            f'<div class="{button_class}">',
-            unsafe_allow_html=True
-        )
-
+            st.markdown(
+                f"""
+<div class="nav-active">
+""",
+                unsafe_allow_html=True
+            )
 
         clicked = st.button(
-            page_name,
+            f"{icon}   {page_name}",
             key=f"nav_{page_name}",
             width="stretch"
         )
 
+        if active:
 
-        st.markdown(
-            "</div>",
-            unsafe_allow_html=True
-        )
-
+            st.markdown(
+                "</div>",
+                unsafe_allow_html=True
+            )
 
         if clicked:
 
@@ -1573,9 +1649,8 @@ Navigation
 <div class="sidebar-footer">
 
 ForecastOpti<br>
-
-Demand Forecasting &
-Inventory Intelligence
+Business Intelligence Dashboard<br>
+Forecasting · Inventory · Segmentation
 
 </div>
 """
@@ -1590,25 +1665,31 @@ page = st.session_state.forecastopti_page
 
 
 # ============================================================
-# HERO
+# TOP BAR
 # ============================================================
 
 html(
     f"""
-<div class="hero">
+<div class="topbar">
 
-<div class="hero-eyebrow">
-BUSINESS INTELLIGENCE
-</div>
+<div>
 
-<div class="hero-title">
+<div class="page-title">
 {page}
 </div>
 
-<div class="hero-description">
-Forecasting, inventory optimization,
-segmentation, dan decision support
-dalam satu dashboard.
+<div class="page-subtitle">
+Forecasting & Inventory Intelligence
+</div>
+
+</div>
+
+<div class="status-pill">
+
+<span class="status-dot"></span>
+
+System Online
+
 </div>
 
 </div>
@@ -1617,61 +1698,546 @@ dalam satu dashboard.
 
 
 # ============================================================
+# HERO
+# ============================================================
+
+html(
+    f"""
+<div class="hero">
+
+<div class="hero-label">
+BUSINESS INTELLIGENCE
+</div>
+
+<div class="hero-title">
+{page}
+</div>
+
+<div class="hero-description">
+Forecast demand, understand demand behavior,
+identify inventory risk, and generate
+inventory recommendations from one dashboard.
+</div>
+
+</div>
+"""
+)
+
+
+# ============================================================
+# CHART HELPERS
+# ============================================================
+
+def chart_layout(
+    fig,
+    height=320
+):
+
+    fig.update_layout(
+
+        height=height,
+
+        margin=dict(
+            l=10,
+            r=10,
+            t=10,
+            b=10
+        ),
+
+        paper_bgcolor="rgba(0,0,0,0)",
+
+        plot_bgcolor="rgba(0,0,0,0)",
+
+        font=dict(
+            family="Inter, Arial, sans-serif",
+            color="#667085",
+            size=10
+        ),
+
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="left",
+            x=0
+        ),
+
+        hoverlabel=dict(
+            bgcolor="#172033",
+            font_color="#ffffff"
+        )
+    )
+
+    fig.update_xaxes(
+        showgrid=False,
+        zeroline=False,
+        linecolor="#edf0f4",
+        tickfont=dict(
+            color="#98a2b3",
+            size=9
+        )
+    )
+
+    fig.update_yaxes(
+        showgrid=True,
+        gridcolor="#f0f2f5",
+        zeroline=False,
+        linecolor="rgba(0,0,0,0)",
+        tickfont=dict(
+            color="#98a2b3",
+            size=9
+        )
+    )
+
+    return fig
+
+
+def forecast_chart(data):
+
+    if data.empty:
+        return None
+
+    fig = go.Figure()
+
+    if "actual_sales" in data.columns:
+
+        fig.add_trace(
+            go.Scatter(
+                x=data["date"],
+                y=data["actual_sales"],
+                mode="lines",
+                name="Actual",
+                line=dict(
+                    color="#172033",
+                    width=2.4
+                ),
+                hovertemplate=
+                    "<b>Actual</b><br>"
+                    "%{y:,.0f}<extra></extra>"
+            )
+        )
+
+    if "predicted_sales" in data.columns:
+
+        fig.add_trace(
+            go.Scatter(
+                x=data["date"],
+                y=data["predicted_sales"],
+                mode="lines",
+                name="Forecast",
+                line=dict(
+                    color="#2563eb",
+                    width=2.8
+                ),
+                hovertemplate=
+                    "<b>Forecast</b><br>"
+                    "%{y:,.0f}<extra></extra>"
+            )
+        )
+
+    return chart_layout(
+        fig,
+        height=330
+    )
+
+
+def category_chart(
+    categories,
+    values
+):
+
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Bar(
+            x=categories,
+            y=values,
+            marker=dict(
+                color=[
+                    "#172033",
+                    "#667085",
+                    "#2563eb"
+                ][:len(categories)]
+            ),
+            text=[
+                f"{int(v):,}"
+                for v in values
+            ],
+            textposition="outside",
+            textfont=dict(
+                color="#344054",
+                size=10
+            ),
+            hovertemplate=
+                "%{x}<br>"
+                "Store-Items: %{y:,}"
+                "<extra></extra>"
+        )
+    )
+
+    fig.update_layout(
+        showlegend=False
+    )
+
+    return chart_layout(
+        fig,
+        height=300
+    )
+
+
+def risk_chart(
+    high,
+    medium,
+    low
+):
+
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Pie(
+            labels=[
+                "High Risk",
+                "Medium Risk",
+                "Low Risk"
+            ],
+            values=[
+                high,
+                medium,
+                low
+            ],
+            hole=.68,
+            sort=False,
+            marker=dict(
+                colors=[
+                    "#df5757",
+                    "#e89b25",
+                    "#18a66a"
+                ],
+                line=dict(
+                    color="#ffffff",
+                    width=4
+                )
+            ),
+            textinfo="percent",
+            textfont=dict(
+                size=10
+            ),
+            hovertemplate=
+                "%{label}<br>"
+                "%{value:,} store-items"
+                "<extra></extra>"
+        )
+    )
+
+    fig.update_layout(
+        showlegend=True,
+        legend=dict(
+            orientation="h",
+            y=-0.04,
+            x=.5,
+            xanchor="center"
+        )
+    )
+
+    return chart_layout(
+        fig,
+        height=270
+    )
+
+
+def store_stock_chart(data):
+
+    if data.empty:
+        return None
+
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Bar(
+            x=data["store_id"].astype(str),
+            y=data["recommended_stock"],
+            marker_color="#2563eb",
+            text=[
+                f"{x:,.0f}"
+                for x in data["recommended_stock"]
+            ],
+            textposition="outside",
+            hovertemplate=
+                "Store %{x}<br>"
+                "Recommended Stock: %{y:,.0f}"
+                "<extra></extra>"
+        )
+    )
+
+    fig.update_layout(
+        showlegend=False
+    )
+
+    return chart_layout(
+        fig,
+        height=270
+    )
+
+
+# ============================================================
 # PAGE: OVERVIEW
 # ============================================================
 
 if page == "Overview":
 
-    html(
-        """
-<div class="section-title">
-Executive Overview
+    # --------------------------------------------------------
+    # KPI
+    # --------------------------------------------------------
+
+    k1, k2, k3, k4 = st.columns(4)
+
+    with k1:
+
+        html(
+            f"""
+<div class="kpi kpi-blue">
+
+<div class="kpi-label">
+Actual Sales
 </div>
 
-<div class="section-subtitle">
-Ringkasan performa forecasting dan kondisi inventory.
+<div class="kpi-value">
+{integer(total_actual)}
+</div>
+
+<div class="kpi-description">
+Observed demand in test data
+</div>
+
+</div>
+"""
+        )
+
+
+    with k2:
+
+        html(
+            f"""
+<div class="kpi kpi-green">
+
+<div class="kpi-label">
+Forecast WAPE
+</div>
+
+<div class="kpi-value">
+{test_wape:.2f}%
+</div>
+
+<div class="kpi-description">
+Final model performance
+</div>
+
+</div>
+"""
+        )
+
+
+    with k3:
+
+        html(
+            f"""
+<div class="kpi kpi-orange">
+
+<div class="kpi-label">
+Recommended Stock
+</div>
+
+<div class="kpi-value">
+{integer(total_recommended_stock)}
+</div>
+
+<div class="kpi-description">
+Aggregated inventory recommendation
+</div>
+
+</div>
+"""
+        )
+
+
+    with k4:
+
+        html(
+            f"""
+<div class="kpi kpi-red">
+
+<div class="kpi-label">
+Store-Items
+</div>
+
+<div class="kpi-value">
+{total_store_items:,}
+</div>
+
+<div class="kpi-description">
+Unique store-item combinations
+</div>
+
+</div>
+"""
+        )
+
+
+    # --------------------------------------------------------
+    # FILTER
+    # --------------------------------------------------------
+
+    html(
+        """
+<div class="section-head">
+
+<div>
+
+<div class="section-title">
+Demand Overview
+</div>
+
+<div class="section-description">
+Actual demand compared with model forecast.
+</div>
+
+</div>
+
 </div>
 """
     )
 
 
-    c1, c2, c3, c4, c5 = st.columns(5)
-
-
-    c1.metric(
-        "Actual Sales",
-        money(total_actual)
+    filter_a, filter_b, filter_c = st.columns(
+        [1, 1, 1]
     )
 
 
-    c2.metric(
-        "MAE",
-        number(test_mae)
+    stores = ["All"]
+
+    if "store_id" in forecast.columns:
+
+        stores += sorted(
+            forecast[
+                "store_id"
+            ]
+            .dropna()
+            .astype(str)
+            .unique()
+            .tolist()
+        )
+
+
+    items = ["All"]
+
+    if "item_id" in forecast.columns:
+
+        items += sorted(
+            forecast[
+                "item_id"
+            ]
+            .dropna()
+            .astype(str)
+            .unique()
+            .tolist()
+        )
+
+
+    selected_store = filter_a.selectbox(
+        "Store",
+        stores,
+        key="overview_store"
     )
 
 
-    c3.metric(
-        "RMSE",
-        number(test_rmse)
+    selected_item = filter_b.selectbox(
+        "Item",
+        items,
+        key="overview_item"
     )
 
 
-    c4.metric(
-        "WAPE",
-        f"{test_wape:.2f}%"
+    period = filter_c.selectbox(
+        "Period",
+        [
+            "All",
+            "Last 30 Days",
+            "Last 60 Days",
+            "Last 90 Days"
+        ],
+        key="overview_period"
     )
 
 
-    c5.metric(
-        "Store-Items",
-        f"{total_store_items:,}"
-    )
+    overview_data = forecast.copy()
 
 
-    st.caption(
-        f"Final model: {model_name}"
-    )
+    if selected_store != "All":
 
+        overview_data = overview_data[
+            overview_data[
+                "store_id"
+            ]
+            .astype(str)
+            ==
+            selected_store
+        ]
+
+
+    if selected_item != "All":
+
+        overview_data = overview_data[
+            overview_data[
+                "item_id"
+            ]
+            .astype(str)
+            ==
+            selected_item
+        ]
+
+
+    if (
+        period != "All"
+        and
+        "date" in overview_data.columns
+        and
+        not overview_data.empty
+    ):
+
+        days = {
+
+            "Last 30 Days": 30,
+
+            "Last 60 Days": 60,
+
+            "Last 90 Days": 90
+
+        }[period]
+
+
+        max_date = overview_data[
+            "date"
+        ].max()
+
+
+        min_date = (
+            max_date
+            -
+            pd.Timedelta(
+                days=days
+            )
+        )
+
+
+        overview_data = overview_data[
+            overview_data["date"]
+            >= min_date
+        ]
+
+
+    # --------------------------------------------------------
+    # MAIN CHARTS
+    # --------------------------------------------------------
 
     left, right = st.columns(
         [1.65, 1]
@@ -1682,23 +2248,33 @@ Ringkasan performa forecasting dan kondisi inventory.
 
         html(
             """
-<div class="section-title">
-Actual vs Predicted
+<div class="dashboard-card">
+
+<div class="card-title">
+Demand Forecast
+</div>
+
+<div class="card-subtitle">
+Actual vs forecast demand over time
+</div>
+
 </div>
 """
         )
 
 
         if (
-            "date" in forecast.columns
+            not overview_data.empty
             and
-            "actual_sales" in forecast.columns
+            "date" in overview_data.columns
             and
-            "predicted_sales" in forecast.columns
+            "actual_sales" in overview_data.columns
+            and
+            "predicted_sales" in overview_data.columns
         ):
 
             daily = (
-                forecast
+                overview_data
                 .groupby("date")[
                     [
                         "actual_sales",
@@ -1706,19 +2282,30 @@ Actual vs Predicted
                     ]
                 ]
                 .sum()
-                .sort_index()
+                .reset_index()
+                .sort_values("date")
             )
 
 
-            st.line_chart(
-                daily,
-                width="stretch"
+            fig = forecast_chart(
+                daily
             )
+
+
+            if fig is not None:
+
+                st.plotly_chart(
+                    fig,
+                    width="stretch",
+                    config={
+                        "displayModeBar": False
+                    }
+                )
 
         else:
 
-            st.warning(
-                "Kolom forecasting tidak lengkap."
+            st.info(
+                "Data forecast tidak tersedia."
             )
 
 
@@ -1726,151 +2313,390 @@ Actual vs Predicted
 
         html(
             """
-<div class="section-title">
-Demand Distribution
+<div class="dashboard-card">
+
+<div class="card-title">
+Demand Segmentation
+</div>
+
+<div class="card-subtitle">
+Store-item distribution by business level
+</div>
+
 </div>
 """
         )
 
 
-        if not segment_summary.empty:
+        if (
+            not segment_summary.empty
+            and
+            "business_level"
+            in segment_summary.columns
+            and
+            "store_item_count"
+            in segment_summary.columns
+        ):
 
-            if (
-                "business_level"
-                in segment_summary.columns
-                and
-                "store_item_count"
-                in segment_summary.columns
-            ):
-
-                counts = (
-                    segment_summary
-                    .set_index(
-                        "business_level"
-                    )[
-                        "store_item_count"
-                    ]
-                )
+            segment_chart_data = (
+                segment_summary
+                .copy()
+            )
 
 
-                st.bar_chart(
-                    counts,
-                    width="stretch"
-                )
+            fig = category_chart(
+                segment_chart_data[
+                    "business_level"
+                ].astype(str).tolist(),
+                segment_chart_data[
+                    "store_item_count"
+                ].tolist()
+            )
 
 
-                display_dataframe(
-                    segment_summary[
-                        [
-                            "business_level",
-                            "store_item_count"
-                        ]
-                    ]
-                )
-
-            else:
-
-                st.warning(
-                    "Kolom segment summary tidak lengkap."
-                )
+            st.plotly_chart(
+                fig,
+                width="stretch",
+                config={
+                    "displayModeBar": False
+                }
+            )
 
         else:
 
             st.info(
-                "Data segment summary belum tersedia."
+                "Data segmentation belum tersedia."
             )
 
 
+    # --------------------------------------------------------
+    # RISK + STOCK
+    # --------------------------------------------------------
+
     html(
         """
+<div class="section-head">
+
+<div>
+
 <div class="section-title">
-Business Snapshot
+Inventory Intelligence
+</div>
+
+<div class="section-description">
+Risk indicators and recommended stock distribution.
+</div>
+
+</div>
+
 </div>
 """
     )
 
 
-    a, b = st.columns(2)
+    risk_col, stock_col = st.columns(
+        [1, 1.6]
+    )
 
 
-    with a:
+    # --------------------------------------------------------
+    # RISK
+    # --------------------------------------------------------
 
-        html(
-            f"""
-<div class="card">
+    with risk_col:
 
-<b>
-Model Performance
-</b>
-
-<p style="
-color:#667085;
-">
-
-Model:
-<strong>
-{model_name}
-</strong>
-
-</p>
-
-<p style="
-color:#667085;
-">
-
-MAE:
-<strong>
-{test_mae:.2f}
-</strong>
-
-&nbsp;&nbsp;
-
-RMSE:
-<strong>
-{test_rmse:.2f}
-</strong>
-
-&nbsp;&nbsp;
-
-WAPE:
-<strong>
-{test_wape:.2f}%
-</strong>
-
-</p>
-
-</div>
-"""
-        )
+        rec = optimization.copy()
 
 
-    with b:
+        if "demand_category" in rec.columns:
+
+            category = (
+                rec[
+                    "demand_category"
+                ]
+                .astype(str)
+                .str.lower()
+                .str.strip()
+            )
+
+
+            high_count = int(
+                category.isin(
+                    [
+                        "high",
+                        "tinggi"
+                    ]
+                ).sum()
+            )
+
+
+            medium_count = int(
+                category.isin(
+                    [
+                        "medium",
+                        "sedang"
+                    ]
+                ).sum()
+            )
+
+
+            low_count = int(
+                category.isin(
+                    [
+                        "low",
+                        "rendah"
+                    ]
+                ).sum()
+            )
+
+        else:
+
+            high_count = 0
+            medium_count = 0
+            low_count = 0
+
 
         html(
             """
-<div class="card">
+<div class="risk-card">
 
-<b>
-Inventory Decision Support
-</b>
+<div class="card-title">
+Stockout Risk Indicators
+</div>
 
-<p style="
-color:#667085;
-line-height:1.7;
-">
-
-Forecast demand,
-demand variability,
-demand buffer,
-dan recommended stock
-digunakan untuk membantu
-menentukan prioritas persediaan.
-
-</p>
+<div class="card-subtitle">
+Current demand priority distribution
+</div>
 
 </div>
 """
         )
+
+
+        fig = risk_chart(
+            high_count,
+            medium_count,
+            low_count
+        )
+
+
+        st.plotly_chart(
+            fig,
+            width="stretch",
+            config={
+                "displayModeBar": False
+            }
+        )
+
+
+        html(
+            f"""
+<div class="risk-card">
+
+<div class="risk-item">
+
+<div class="risk-row">
+
+<div class="risk-name">
+High Risk SKUs
+</div>
+
+<div class="risk-number">
+{high_count:,}
+</div>
+
+</div>
+
+<span class="risk-badge risk-high">
+Priority Attention
+</span>
+
+</div>
+
+
+<div class="risk-item">
+
+<div class="risk-row">
+
+<div class="risk-name">
+Medium Risk SKUs
+</div>
+
+<div class="risk-number">
+{medium_count:,}
+</div>
+
+</div>
+
+<span class="risk-badge risk-medium">
+Monitor
+</span>
+
+</div>
+
+
+<div class="risk-item">
+
+<div class="risk-row">
+
+<div class="risk-name">
+Low Risk SKUs
+</div>
+
+<div class="risk-number">
+{low_count:,}
+</div>
+
+</div>
+
+<span class="risk-badge risk-low">
+Stable
+</span>
+
+</div>
+
+</div>
+"""
+        )
+
+
+    # --------------------------------------------------------
+    # STOCK
+    # --------------------------------------------------------
+
+    with stock_col:
+
+        html(
+            """
+<div class="dashboard-card">
+
+<div class="card-title">
+Recommended Stock by Store
+</div>
+
+<div class="card-subtitle">
+Aggregated recommended inventory level
+</div>
+
+</div>
+"""
+        )
+
+
+        if (
+            "store_id" in optimization.columns
+            and
+            "recommended_stock"
+            in optimization.columns
+        ):
+
+            store_stock = (
+                optimization
+                .groupby(
+                    "store_id",
+                    as_index=False
+                )[
+                    "recommended_stock"
+                ]
+                .sum()
+                .sort_values(
+                    "recommended_stock",
+                    ascending=False
+                )
+                .head(8)
+            )
+
+
+            fig = store_stock_chart(
+                store_stock
+            )
+
+
+            if fig is not None:
+
+                st.plotly_chart(
+                    fig,
+                    width="stretch",
+                    config={
+                        "displayModeBar": False
+                    }
+                )
+
+
+        else:
+
+            st.info(
+                "Data recommended stock belum tersedia."
+            )
+
+
+    # --------------------------------------------------------
+    # MODEL SNAPSHOT
+    # --------------------------------------------------------
+
+    html(
+        """
+<div class="section-head">
+
+<div>
+
+<div class="section-title">
+Model Performance
+</div>
+
+<div class="section-description">
+Final model compared with the baseline.
+</div>
+
+</div>
+
+</div>
+"""
+    )
+
+
+    m1, m2, m3, m4 = st.columns(4)
+
+
+    m1.metric(
+        "MAE",
+        f"{test_mae:.2f}"
+    )
+
+
+    m2.metric(
+        "RMSE",
+        f"{test_rmse:.2f}"
+    )
+
+
+    m3.metric(
+        "WAPE",
+        f"{test_wape:.2f}%"
+    )
+
+
+    if (
+        improvement is not None
+        and len(improvement) > 1
+    ):
+
+        mae_improvement = safe_float(
+            improvement.iloc[1].get(
+                "mae_improvement_pct",
+                0
+            )
+        )
+
+    else:
+
+        mae_improvement = 0
+
+
+    m4.metric(
+        "MAE Improvement",
+        f"{mae_improvement:.2f}%"
+    )
 
 
 # ============================================================
@@ -1881,13 +2707,20 @@ elif page == "Forecast":
 
     html(
         """
+<div class="section-head">
+
+<div>
+
 <div class="section-title">
 Forecast Analysis
 </div>
 
-<div class="section-subtitle">
-Analisis actual demand dibandingkan dengan
-hasil forecasting.
+<div class="section-description">
+Compare actual demand with model prediction.
+</div>
+
+</div>
+
 </div>
 """
     )
@@ -1900,7 +2733,7 @@ hasil forecasting.
     ):
 
         st.error(
-            "Kolom store_id atau item_id tidak ditemukan."
+            "store_id atau item_id tidak ditemukan."
         )
 
         st.stop()
@@ -1975,7 +2808,7 @@ hasil forecasting.
     if filtered.empty:
 
         st.warning(
-            "Tidak ada data untuk filter tersebut."
+            "Tidak ada data untuk filter."
         )
 
     else:
@@ -1988,20 +2821,21 @@ hasil forecasting.
             in filtered.columns
         ):
 
-            filtered = filtered.copy()
-
-
-            filtered[
-                "forecast_error"
-            ] = (
+            actual = safe_float(
                 filtered[
                     "actual_sales"
-                ]
-                -
+                ].sum()
+            )
+
+
+            predicted = safe_float(
                 filtered[
                     "predicted_sales"
-                ]
+                ].sum()
             )
+
+
+            error = actual - predicted
 
 
             a, b, c = st.columns(3)
@@ -2009,31 +2843,19 @@ hasil forecasting.
 
             a.metric(
                 "Actual Demand",
-                money(
-                    filtered[
-                        "actual_sales"
-                    ].sum()
-                )
+                integer(actual)
             )
 
 
             b.metric(
                 "Forecast Demand",
-                money(
-                    filtered[
-                        "predicted_sales"
-                    ].sum()
-                )
+                integer(predicted)
             )
 
 
             c.metric(
-                "Average Error",
-                number(
-                    filtered[
-                        "forecast_error"
-                    ].mean()
-                )
+                "Forecast Error",
+                number(error)
             )
 
 
@@ -2048,36 +2870,54 @@ hasil forecasting.
                         ]
                     ]
                     .sum()
-                    .sort_index()
+                    .reset_index()
+                    .sort_values("date")
                 )
 
 
-                st.line_chart(
-                    daily,
-                    width="stretch"
+                fig = forecast_chart(
+                    daily
+                )
+
+
+                st.plotly_chart(
+                    fig,
+                    width="stretch",
+                    config={
+                        "displayModeBar": False
+                    }
                 )
 
 
         html(
             """
+<div class="section-head">
+
+<div>
+
 <div class="section-title">
 Forecast Output
+</div>
+
+<div class="section-description">
+Detailed prediction records.
+</div>
+
+</div>
+
 </div>
 """
         )
 
 
-        if "date" in filtered.columns:
-
-            filtered = filtered.sort_values(
+        display_dataframe(
+            filtered.sort_values(
                 "date",
                 ascending=False
             )
-
-
-        display_dataframe(
-            filtered,
-            height=500
+            if "date" in filtered.columns
+            else filtered,
+            height=520
         )
 
 
@@ -2089,13 +2929,21 @@ elif page == "Inventory Analysis":
 
     html(
         """
+<div class="section-head">
+
+<div>
+
 <div class="section-title">
-Interactive Store-Item Analysis
+Inventory Analysis
 </div>
 
-<div class="section-subtitle">
-Pilih store dan item untuk melihat profil demand
-dan rekomendasi inventory.
+<div class="section-description">
+Explore demand characteristics and inventory recommendations
+by store-item.
+</div>
+
+</div>
+
 </div>
 """
     )
@@ -2110,33 +2958,20 @@ dan rekomendasi inventory.
         st.stop()
 
 
-    required_columns = [
-        "store_id",
-        "item_id"
-    ]
-
-
-    missing_columns = [
-        column
-        for column in required_columns
-        if column not in segments.columns
-    ]
-
-
-    if missing_columns:
+    if (
+        "store_id" not in segments.columns
+        or
+        "item_id" not in segments.columns
+    ):
 
         st.error(
-            "Kolom segmentation yang diperlukan tidak tersedia: "
-            +
-            ", ".join(
-                missing_columns
-            )
+            "Kolom store_id atau item_id tidak ditemukan."
         )
 
         st.stop()
 
 
-    store_list = sorted(
+    stores = sorted(
         segments[
             "store_id"
         ]
@@ -2149,7 +2984,7 @@ dan rekomendasi inventory.
 
     selected_store = st.selectbox(
         "Store",
-        store_list,
+        stores,
         key="analysis_store"
     )
 
@@ -2169,15 +3004,6 @@ dan rekomendasi inventory.
         .unique()
         .tolist()
     )
-
-
-    if not available_items:
-
-        st.warning(
-            "Tidak ada item untuk store tersebut."
-        )
-
-        st.stop()
 
 
     selected_item = st.selectbox(
@@ -2232,7 +3058,7 @@ dan rekomendasi inventory.
     if selected_seg.empty:
 
         st.warning(
-            "Data segmentation store-item tidak tersedia."
+            "Data segmentation tidak ditemukan."
         )
 
         st.stop()
@@ -2241,8 +3067,7 @@ dan rekomendasi inventory.
     if selected_inv.empty:
 
         st.warning(
-            "Data inventory recommendation "
-            "store-item tidak tersedia."
+            "Data inventory recommendation tidak ditemukan."
         )
 
         st.stop()
@@ -2255,43 +3080,22 @@ dan rekomendasi inventory.
 
     html(
         f"""
-<div class="card">
+<div class="dashboard-card">
 
-<span style="
-color:#667085;
-">
-Store
-</span>
+<div class="card-title">
+Store {selected_store}
+</div>
 
-<strong>
-{selected_store}
-</strong>
-
-<span style="
-color:#98a2b3;
-">
-/
-</span>
-
-<span style="
-color:#667085;
-">
-Item
-</span>
-
-<strong>
-{selected_item}
-</strong>
+<div class="card-subtitle">
+Item {selected_item}
+</div>
 
 </div>
 """
     )
 
 
-    st.write("")
-
-
-    k1, k2, k3, k4, k5 = st.columns(5)
+    k1, k2, k3, k4 = st.columns(4)
 
 
     k1.metric(
@@ -2306,17 +3110,6 @@ Item
 
 
     k2.metric(
-        "Max Forecast",
-        number(
-            inv.get(
-                "max_forecast_demand",
-                0
-            )
-        )
-    )
-
-
-    k3.metric(
         "Demand Std",
         number(
             inv.get(
@@ -2327,7 +3120,7 @@ Item
     )
 
 
-    k4.metric(
+    k3.metric(
         "Demand Buffer",
         number(
             inv.get(
@@ -2338,14 +3131,14 @@ Item
     )
 
 
-    k5.metric(
+    k4.metric(
         "Recommended Stock",
-        f"{safe_float(
+        integer(
             inv.get(
-                'recommended_stock',
+                "recommended_stock",
                 0
             )
-        ):,.0f}"
+        )
     )
 
 
@@ -2356,8 +3149,16 @@ Item
 
         html(
             """
+<div class="section-head">
+
+<div>
+
 <div class="section-title">
 Demand Profile
+</div>
+
+</div>
+
 </div>
 """
         )
@@ -2382,6 +3183,7 @@ Demand Profile
                     "Absolute Forecast Error",
 
                     "Forecast Demand"
+
                 ],
 
                 "Value": [
@@ -2441,6 +3243,7 @@ Demand Profile
                             "-"
                         )
                     )
+
                 ]
             }
         )
@@ -2452,15 +3255,6 @@ Demand Profile
 
 
     with right:
-
-        html(
-            """
-<div class="section-title">
-Business Recommendation
-</div>
-"""
-        )
-
 
         category = safe_text(
             inv.get(
@@ -2483,12 +3277,11 @@ Business Recommendation
             "tinggi"
         ]:
 
-            badge_class = "badge-high"
+            badge_class = "risk-high"
 
-            recommendation = (
-                "Prioritas tinggi. Store-item memiliki "
-                "permintaan tinggi dan perlu mendapat "
-                "perhatian dalam perencanaan persediaan."
+            message = (
+                "Store-item membutuhkan perhatian "
+                "lebih tinggi dalam inventory planning."
             )
 
         elif category_lower in [
@@ -2496,72 +3289,73 @@ Business Recommendation
             "sedang"
         ]:
 
-            badge_class = "badge-medium"
+            badge_class = "risk-medium"
 
-            recommendation = (
-                "Prioritas sedang. Monitor demand dan "
-                "stok secara berkala."
+            message = (
+                "Store-item perlu dimonitor secara "
+                "berkala berdasarkan perubahan demand."
             )
 
         else:
 
-            badge_class = "badge-low"
+            badge_class = "risk-low"
 
-            recommendation = (
-                "Prioritas rendah. Persediaan dapat "
-                "dikelola dengan monitoring rutin."
+            message = (
+                "Store-item berada pada kategori "
+                "demand yang relatif rendah."
             )
-
-
-        recommended_stock = safe_float(
-            inv.get(
-                "recommended_stock",
-                0
-            )
-        )
 
 
         html(
             f"""
-<div class="card">
+<div class="risk-card">
 
-<span class="badge {badge_class}">
+<div class="card-title">
+Inventory Recommendation
+</div>
+
+<div class="card-subtitle">
+Decision support for selected store-item
+</div>
+
+<span class="risk-badge {badge_class}">
 {category}
 </span>
 
-<h2 style="
+<div style="
+font-size:28px;
+font-weight:800;
 color:#172033;
 margin-top:15px;
 ">
 
-{recommended_stock:,.0f}
+{integer(
+    inv.get(
+        "recommended_stock",
+        0
+    )
+)}
 
-units
+</div>
 
-</h2>
-
-<p style="
-color:#667085;
-line-height:1.7;
+<div style="
+font-size:10px;
+color:#98a2b3;
 ">
 
-{recommendation}
+recommended units
 
-</p>
+</div>
 
 <hr>
 
-<b>
-Recommended Stock
-</b>
-
 <p style="
 color:#667085;
+font-size:11px;
+line-height:1.7;
 ">
 
-Berdasarkan forecast demand,
-demand variability,
-dan demand buffer.
+{message}
 
 </p>
 
@@ -2578,13 +3372,21 @@ elif page == "Demand Segmentation":
 
     html(
         """
+<div class="section-head">
+
+<div>
+
 <div class="section-title">
 Demand Segmentation
 </div>
 
-<div class="section-subtitle">
-Distribusi store-item berdasarkan karakteristik
-permintaan.
+<div class="section-description">
+Understand how store-items are distributed
+across demand characteristics.
+</div>
+
+</div>
+
 </div>
 """
     )
@@ -2593,7 +3395,7 @@ permintaan.
     if segment_summary.empty:
 
         st.warning(
-            "demand_segment_summary.csv belum tersedia."
+            "Demand segment summary belum tersedia."
         )
 
         st.stop()
@@ -2608,22 +3410,24 @@ permintaan.
     ):
 
         st.error(
-            "Kolom business_level atau store_item_count "
-            "tidak ditemukan."
+            "Kolom segment summary tidak lengkap."
         )
 
         st.stop()
 
 
+    summary = segment_summary.copy()
+
+
     total = safe_int(
-        segment_summary[
+        summary[
             "store_item_count"
         ].sum()
     )
 
 
-    business_level = (
-        segment_summary[
+    labels = (
+        summary[
             "business_level"
         ]
         .astype(str)
@@ -2632,12 +3436,12 @@ permintaan.
     )
 
 
-    low = safe_int(
-        segment_summary.loc[
-            business_level.isin(
+    high = safe_int(
+        summary.loc[
+            labels.isin(
                 [
-                    "rendah",
-                    "low"
+                    "high",
+                    "tinggi"
                 ]
             ),
             "store_item_count"
@@ -2646,11 +3450,11 @@ permintaan.
 
 
     medium = safe_int(
-        segment_summary.loc[
-            business_level.isin(
+        summary.loc[
+            labels.isin(
                 [
-                    "sedang",
-                    "medium"
+                    "medium",
+                    "sedang"
                 ]
             ),
             "store_item_count"
@@ -2658,12 +3462,12 @@ permintaan.
     )
 
 
-    high = safe_int(
-        segment_summary.loc[
-            business_level.isin(
+    low = safe_int(
+        summary.loc[
+            labels.isin(
                 [
-                    "tinggi",
-                    "high"
+                    "low",
+                    "rendah"
                 ]
             ),
             "store_item_count"
@@ -2681,8 +3485,8 @@ permintaan.
 
 
     b.metric(
-        "Low",
-        f"{low:,}"
+        "High",
+        f"{high:,}"
     )
 
 
@@ -2693,8 +3497,8 @@ permintaan.
 
 
     d.metric(
-        "High",
-        f"{high:,}"
+        "Low",
+        f"{low:,}"
     )
 
 
@@ -2705,26 +3509,29 @@ permintaan.
 
     with left:
 
-        chart_data = (
-            segment_summary
-            .set_index(
+        fig = category_chart(
+            summary[
                 "business_level"
-            )[
+            ].astype(str).tolist(),
+            summary[
                 "store_item_count"
-            ]
+            ].tolist()
         )
 
 
-        st.bar_chart(
-            chart_data,
-            width="stretch"
+        st.plotly_chart(
+            fig,
+            width="stretch",
+            config={
+                "displayModeBar": False
+            }
         )
 
 
     with right:
 
         display_dataframe(
-            segment_summary
+            summary
         )
 
 
@@ -2732,80 +3539,56 @@ permintaan.
 
         html(
             """
+<div class="section-head">
+
+<div>
+
 <div class="section-title">
 Store-Item Detail
+</div>
+
+</div>
+
 </div>
 """
         )
 
 
-        q = st.text_input(
+        search = st.text_input(
             "Search store / item",
             key="segment_search"
-        )
-
-
-        segment_values = [
-            "All"
-        ]
-
-
-        if (
-            "demand_segment"
-            in segments.columns
-        ):
-
-            detected_segments = sorted(
-                segments[
-                    "demand_segment"
-                ]
-                .dropna()
-                .astype(str)
-                .unique()
-                .tolist()
-            )
-
-
-            segment_values += [
-                value
-                for value in detected_segments
-                if value
-                not in segment_values
-            ]
-
-
-        seg_filter = st.selectbox(
-            "Demand Segment",
-            segment_values,
-            key="segment_filter"
         )
 
 
         detail = segments.copy()
 
 
-        if q:
+        if search:
 
             mask = (
+
                 detail[
                     "store_id"
                 ]
                 .astype(str)
                 .str.contains(
-                    q,
+                    search,
                     case=False,
                     na=False
                 )
+
                 |
+
                 detail[
                     "item_id"
                 ]
                 .astype(str)
                 .str.contains(
-                    q,
+                    search,
                     case=False,
                     na=False
                 )
+
             )
 
 
@@ -2814,26 +3597,9 @@ Store-Item Detail
             ]
 
 
-        if (
-            seg_filter != "All"
-            and
-            "demand_segment"
-            in detail.columns
-        ):
-
-            detail = detail[
-                detail[
-                    "demand_segment"
-                ]
-                .astype(str)
-                ==
-                seg_filter
-            ]
-
-
         display_dataframe(
             detail,
-            height=500
+            height=520
         )
 
 
@@ -2845,32 +3611,31 @@ elif page == "Recommendations":
 
     html(
         """
+<div class="section-head">
+
+<div>
+
 <div class="section-title">
 Inventory Recommendations
 </div>
 
-<div class="section-subtitle">
-Prioritaskan store-item berdasarkan demand,
-variability, forecast error, dan recommended stock.
+<div class="section-description">
+Prioritize store-items based on demand and
+recommended inventory level.
+</div>
+
+</div>
+
 </div>
 """
     )
-
-
-    if optimization.empty:
-
-        st.warning(
-            "Data inventory recommendation kosong."
-        )
-
-        st.stop()
 
 
     rec = optimization.copy()
 
 
     search = st.text_input(
-        "Search Store / Item",
+        "Search store / item",
         key="recommendation_search"
     )
 
@@ -2878,14 +3643,11 @@ variability, forecast error, dan recommended stock.
     f1, f2, f3 = st.columns(3)
 
 
-    priority_options = [
-        "All"
-    ]
-
+    categories = ["All"]
 
     if "demand_category" in rec.columns:
 
-        categories = sorted(
+        categories += sorted(
             rec[
                 "demand_category"
             ]
@@ -2896,60 +3658,14 @@ variability, forecast error, dan recommended stock.
         )
 
 
-        priority_options += [
-            value
-            for value in categories
-            if value
-            not in priority_options
-        ]
-
-
     priority = f1.selectbox(
         "Demand Category",
-        priority_options,
+        categories,
         key="recommendation_priority"
     )
 
 
-    segment_options = [
-        "All"
-    ]
-
-
-    if (
-        not segments.empty
-        and
-        "demand_segment"
-        in segments.columns
-    ):
-
-        segment_values = sorted(
-            segments[
-                "demand_segment"
-            ]
-            .dropna()
-            .astype(str)
-            .unique()
-            .tolist()
-        )
-
-
-        segment_options += [
-            value
-            for value in segment_values
-            if value
-            not in segment_options
-        ]
-
-
-    segment = f2.selectbox(
-        "Demand Segment",
-        segment_options,
-        key="recommendation_segment"
-    )
-
-
-    sort_by = f3.selectbox(
+    sort_by = f2.selectbox(
         "Sort By",
         [
             "Recommended Stock",
@@ -2961,9 +3677,20 @@ variability, forecast error, dan recommended stock.
     )
 
 
+    direction = f3.selectbox(
+        "Order",
+        [
+            "Highest First",
+            "Lowest First"
+        ],
+        key="recommendation_direction"
+    )
+
+
     if search:
 
         mask = (
+
             rec[
                 "store_id"
             ]
@@ -2973,7 +3700,9 @@ variability, forecast error, dan recommended stock.
                 case=False,
                 na=False
             )
+
             |
+
             rec[
                 "item_id"
             ]
@@ -2983,6 +3712,7 @@ variability, forecast error, dan recommended stock.
                 case=False,
                 na=False
             )
+
         )
 
 
@@ -3008,44 +3738,6 @@ variability, forecast error, dan recommended stock.
         ]
 
 
-    if (
-        segment != "All"
-        and
-        not segments.empty
-        and
-        "demand_segment"
-        in segments.columns
-    ):
-
-        seg_lookup = segments[
-            [
-                "store_id",
-                "item_id",
-                "demand_segment"
-            ]
-        ].drop_duplicates()
-
-
-        rec = rec.merge(
-            seg_lookup,
-            on=[
-                "store_id",
-                "item_id"
-            ],
-            how="left"
-        )
-
-
-        rec = rec[
-            rec[
-                "demand_segment"
-            ]
-            .astype(str)
-            ==
-            segment
-        ]
-
-
     sort_map = {
 
         "Recommended Stock":
@@ -3059,6 +3751,7 @@ variability, forecast error, dan recommended stock.
 
         "Demand Buffer":
             "demand_buffer"
+
     }
 
 
@@ -3071,13 +3764,16 @@ variability, forecast error, dan recommended stock.
 
         rec = rec.sort_values(
             sort_column,
-            ascending=False
+            ascending=(
+                direction
+                == "Lowest First"
+            )
         )
 
 
     if "demand_category" in rec.columns:
 
-        category_lower = (
+        category = (
             rec[
                 "demand_category"
             ]
@@ -3087,8 +3783,8 @@ variability, forecast error, dan recommended stock.
         )
 
 
-        high_count = int(
-            category_lower.isin(
+        high = int(
+            category.isin(
                 [
                     "high",
                     "tinggi"
@@ -3097,8 +3793,8 @@ variability, forecast error, dan recommended stock.
         )
 
 
-        medium_count = int(
-            category_lower.isin(
+        medium = int(
+            category.isin(
                 [
                     "medium",
                     "sedang"
@@ -3107,8 +3803,8 @@ variability, forecast error, dan recommended stock.
         )
 
 
-        low_count = int(
-            category_lower.isin(
+        low = int(
+            category.isin(
                 [
                     "low",
                     "rendah"
@@ -3118,39 +3814,39 @@ variability, forecast error, dan recommended stock.
 
     else:
 
-        high_count = 0
-        medium_count = 0
-        low_count = 0
+        high = 0
+        medium = 0
+        low = 0
 
 
-    k1, k2, k3, k4 = st.columns(4)
+    a, b, c, d = st.columns(4)
 
 
-    k1.metric(
+    a.metric(
         "High",
-        f"{high_count:,}"
+        f"{high:,}"
     )
 
 
-    k2.metric(
+    b.metric(
         "Medium",
-        f"{medium_count:,}"
+        f"{medium:,}"
     )
 
 
-    k3.metric(
+    c.metric(
         "Low",
-        f"{low_count:,}"
+        f"{low:,}"
     )
 
 
-    k4.metric(
+    d.metric(
         "Filtered",
         f"{len(rec):,}"
     )
 
 
-    display_columns = [
+    columns = [
 
         "store_id",
 
@@ -3167,31 +3863,30 @@ variability, forecast error, dan recommended stock.
         "demand_buffer",
 
         "recommended_stock"
+
     ]
 
 
-    display_columns = [
+    columns = [
         column
-        for column in display_columns
-        if column
-        in rec.columns
+        for column in columns
+        if column in rec.columns
     ]
 
 
     if rec.empty:
 
         st.info(
-            "Tidak ada recommendation yang cocok "
-            "dengan filter."
+            "Tidak ada recommendation yang cocok."
         )
 
     else:
 
         display_dataframe(
             rec[
-                display_columns
+                columns
             ],
-            height=550
+            height=560
         )
 
 
@@ -3203,85 +3898,71 @@ elif page == "AI Analysis":
 
     html(
         """
+<div class="section-head">
+
+<div>
+
 <div class="section-title">
 AI / Business Analysis
 </div>
 
-<div class="section-subtitle">
-Interpretasi otomatis berdasarkan forecast,
-variability, forecast error, dan inventory.
+<div class="section-description">
+Business interpretation based on forecasting
+and inventory outputs.
+</div>
+
+</div>
+
 </div>
 """
     )
 
 
-    if (
-        "avg_forecast_demand"
+    avg_demand = safe_float(
+        optimization[
+            "avg_forecast_demand"
+        ].mean()
+        if "avg_forecast_demand"
         in optimization.columns
-    ):
-
-        avg_demand = safe_float(
-            optimization[
-                "avg_forecast_demand"
-            ].mean()
-        )
-
-    else:
-
-        avg_demand = 0
+        else 0
+    )
 
 
-    if (
-        "demand_std"
+    avg_variability = safe_float(
+        optimization[
+            "demand_std"
+        ].mean()
+        if "demand_std"
         in optimization.columns
-    ):
-
-        avg_variability = safe_float(
-            optimization[
-                "demand_std"
-            ].mean()
-        )
-
-    else:
-
-        avg_variability = 0
+        else 0
+    )
 
 
-    if (
-        "recommended_stock"
+    avg_stock = safe_float(
+        optimization[
+            "recommended_stock"
+        ].mean()
+        if "recommended_stock"
         in optimization.columns
-    ):
+        else 0
+    )
 
-        avg_stock = safe_float(
-            optimization[
-                "recommended_stock"
-            ].mean()
+
+    abs_error = safe_float(
+        segments[
+            "absolute_forecast_error"
+        ].mean()
+        if (
+            not segments.empty
+            and
+            "absolute_forecast_error"
+            in segments.columns
         )
-
-    else:
-
-        avg_stock = 0
+        else 0
+    )
 
 
-    if (
-        not segments.empty
-        and
-        "absolute_forecast_error"
-        in segments.columns
-    ):
-
-        abs_error = safe_float(
-            segments[
-                "absolute_forecast_error"
-            ].mean()
-        )
-
-    else:
-
-        abs_error = 0
-
-
-    a, b, c, d, e = st.columns(5)
+    a, b, c, d = st.columns(4)
 
 
     a.metric(
@@ -3291,41 +3972,39 @@ variability, forecast error, dan inventory.
 
 
     b.metric(
-        "Avg Demand",
-        number(
-            avg_demand
-        )
+        "Average Demand",
+        number(avg_demand)
     )
 
 
     c.metric(
-        "Variability",
-        number(
-            avg_variability
-        )
+        "Demand Variability",
+        number(avg_variability)
     )
 
 
     d.metric(
-        "Abs Forecast Error",
-        number(
-            abs_error
-        )
-    )
-
-
-    e.metric(
-        "Avg Recommended Stock",
-        number(
-            avg_stock
-        )
+        "Recommended Stock",
+        number(avg_stock)
     )
 
 
     html(
         """
+<div class="section-head">
+
+<div>
+
 <div class="section-title">
 Business Insights
+</div>
+
+<div class="section-description">
+Automatically generated interpretation from project outputs.
+</div>
+
+</div>
+
 </div>
 """
     )
@@ -3337,58 +4016,53 @@ Business Insights
     if avg_demand >= 30:
 
         insights.append(
-            "Permintaan rata-rata berada "
-            "pada tingkat tinggi."
+            "Average forecast demand is relatively high."
         )
 
     elif avg_demand >= 20:
 
         insights.append(
-            "Permintaan rata-rata berada "
-            "pada tingkat sedang."
+            "Average forecast demand is at a moderate level."
         )
 
     else:
 
         insights.append(
-            "Permintaan rata-rata berada "
-            "pada tingkat rendah."
+            "Average forecast demand is relatively low."
         )
 
 
-    if avg_variability <= 10:
+    if avg_variability > 10:
 
         insights.append(
-            "Variabilitas demand relatif terkendali."
-        )
-
-    else:
-
-        insights.append(
-            "Variabilitas demand cukup tinggi "
-            "dan perlu diperhatikan dalam "
-            "perencanaan safety stock."
-        )
-
-
-    if abs_error <= 10:
-
-        insights.append(
-            "Absolute forecast error secara umum "
-            "masih relatif terkendali."
+            "Demand variability is relatively high and "
+            "should be considered when planning inventory."
         )
 
     else:
 
         insights.append(
-            "Forecast error perlu dimonitor karena "
-            "dapat mempengaruhi inventory planning."
+            "Demand variability appears relatively controlled."
+        )
+
+
+    if abs_error > 10:
+
+        insights.append(
+            "Absolute forecast error should be monitored "
+            "because it can influence inventory planning."
+        )
+
+    else:
+
+        insights.append(
+            "Absolute forecast error is relatively controlled."
         )
 
 
     insights.append(
-        f"Rata-rata stok yang direkomendasikan "
-        f"sekitar {avg_stock:.0f} unit per store-item."
+        f"Average recommended inventory is approximately "
+        f"{avg_stock:.0f} units per store-item."
     )
 
 
@@ -3396,32 +4070,44 @@ Business Insights
 
         html(
             f"""
-<div class="insight">
+<div class="dashboard-card">
+
+<div style="
+color:#344054;
+font-size:12px;
+line-height:1.7;
+">
+
 {insight}
+
+</div>
+
 </div>
 """
         )
-
-
-    html(
-        """
-<div class="section-title">
-Segment Business View
-</div>
-"""
-    )
 
 
     if not segment_summary.empty:
 
-        display_dataframe(
-            segment_summary
+        html(
+            """
+<div class="section-head">
+
+<div>
+
+<div class="section-title">
+Segment Business View
+</div>
+
+</div>
+
+</div>
+"""
         )
 
-    else:
 
-        st.info(
-            "Segment summary belum tersedia."
+        display_dataframe(
+            segment_summary
         )
 
 
@@ -3433,12 +4119,20 @@ elif page == "System Health":
 
     html(
         """
+<div class="section-head">
+
+<div>
+
 <div class="section-title">
 System Health
 </div>
 
-<div class="section-subtitle">
-Pemeriksaan file output dan jumlah data ForecastOpti.
+<div class="section-description">
+Check ForecastOpti pipeline outputs and dataset availability.
+</div>
+
+</div>
+
 </div>
 """
     )
@@ -3469,6 +4163,7 @@ Pemeriksaan file output dan jumlah data ForecastOpti.
             CLUSTERING_DIR /
             "store_item_demand_segments.csv"
         )
+
     ]
 
 
@@ -3478,14 +4173,42 @@ Pemeriksaan file output dan jumlah data ForecastOpti.
 
             html(
                 f"""
-<div class="health-card">
+<div class="dashboard-card">
 
-<div class="health-name">
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+">
+
+<div>
+
+<div style="
+font-size:12px;
+font-weight:800;
+color:#172033;
+">
+
 {name}
+
 </div>
 
-<div class="health-status">
+<div style="
+font-size:9px;
+color:#98a2b3;
+margin-top:3px;
+">
+
+{path.name}
+
+</div>
+
+</div>
+
+<div class="risk-badge risk-low">
 Healthy
+</div>
+
 </div>
 
 </div>
@@ -3494,8 +4217,34 @@ Healthy
 
         else:
 
-            st.error(
-                f"{name}: Missing — {path}"
+            html(
+                f"""
+<div class="dashboard-card">
+
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+">
+
+<div style="
+font-size:12px;
+font-weight:800;
+color:#172033;
+">
+
+{name}
+
+</div>
+
+<div class="risk-badge risk-high">
+Missing
+</div>
+
+</div>
+
+</div>
+"""
             )
 
 
@@ -3522,8 +4271,16 @@ Healthy
 
     html(
         """
+<div class="section-head">
+
+<div>
+
 <div class="section-title">
 Project Configuration
+</div>
+
+</div>
+
 </div>
 """
     )
