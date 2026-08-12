@@ -23,18 +23,16 @@ CLUSTERING_DIR = PROJECT_DIR / "outputs" / "clustering"
 
 st.set_page_config(
     page_title="ForecastOpti",
-    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 
 # ============================================================
-# GLOBAL HTML
+# HTML HELPER
 # ============================================================
 
 def html(markup):
-
     cleaned = dedent(markup).strip()
 
     cleaned = "\n".join(
@@ -50,22 +48,17 @@ def html(markup):
 
 
 # ============================================================
-# SAFE DATAFRAME
+# DATA HELPERS
 # ============================================================
 
 def safe_dataframe(df):
-
     if df is None:
         return pd.DataFrame()
 
     result = df.copy()
 
     for column in result.columns:
-
-        if pd.api.types.is_object_dtype(
-            result[column]
-        ):
-
+        if pd.api.types.is_object_dtype(result[column]):
             result[column] = (
                 result[column]
                 .fillna("")
@@ -75,11 +68,7 @@ def safe_dataframe(df):
     return result
 
 
-def display_dataframe(
-    df,
-    height=None
-):
-
+def display_dataframe(df, height=None):
     safe_df = safe_dataframe(df)
 
     kwargs = {
@@ -96,62 +85,33 @@ def display_dataframe(
     )
 
 
-# ============================================================
-# VALUE HELPERS
-# ============================================================
-
-def safe_float(
-    value,
-    default=0
-):
-
+def safe_float(value, default=0):
     try:
-
         if pd.isna(value):
             return default
 
         return float(value)
 
-    except (
-        TypeError,
-        ValueError
-    ):
-
+    except (TypeError, ValueError):
         return default
 
 
-def safe_int(
-    value,
-    default=0
-):
-
+def safe_int(value, default=0):
     try:
-
         if pd.isna(value):
             return default
 
-        return int(
-            float(value)
-        )
+        return int(float(value))
 
-    except (
-        TypeError,
-        ValueError
-    ):
-
+    except (TypeError, ValueError):
         return default
 
 
-def safe_text(
-    value,
-    default="-"
-):
-
+def safe_text(value, default="-"):
     if value is None:
         return default
 
     try:
-
         if pd.isna(value):
             return default
 
@@ -162,40 +122,27 @@ def safe_text(
 
 
 def number(value):
-
     return f"{safe_float(value):,.2f}"
 
 
 def integer(value):
-
     return f"{safe_float(value):,.0f}"
 
 
 def percentage(value):
-
     return f"{safe_float(value):.2f}%"
 
 
-# ============================================================
-# CSV
-# ============================================================
-
-def load_csv(
-    directory,
-    filename
-):
-
+def load_csv(directory, filename):
     path = directory / filename
 
     if not path.exists():
         return None
 
     try:
-
         return pd.read_csv(path)
 
     except Exception:
-
         return None
 
 
@@ -207,1098 +154,489 @@ html(
 """
 <style>
 
-/* ============================================================
-   GLOBAL
-   ============================================================ */
-
 :root {
-
     --bg: #f6f7fb;
-
     --surface: #ffffff;
-
-    --surface-soft: #f9fafb;
-
     --border: #e7e9ee;
-
-    --text: #1f2937;
-
+    --text: #172033;
     --muted: #8a93a3;
-
     --blue: #2563eb;
-
-    --blue-soft: #eef4ff;
-
     --green: #18a66a;
-
-    --green-soft: #eaf8f1;
-
     --orange: #e89b25;
-
-    --orange-soft: #fff6e8;
-
     --red: #df5757;
-
-    --red-soft: #fff0f0;
-
-    --dark: #151923;
 }
-
 
 .stApp {
-
-    background:
-        var(--bg) !important;
-
-    color:
-        var(--text) !important;
+    background: #f6f7fb !important;
+    color: #172033 !important;
 }
-
 
 .block-container {
-
-    max-width:
-        1500px !important;
-
-    padding-top:
-        1.1rem !important;
-
-    padding-bottom:
-        3rem !important;
-
-    padding-left:
-        2rem !important;
-
-    padding-right:
-        2rem !important;
+    max-width: 1500px !important;
+    padding-top: 1.1rem !important;
+    padding-bottom: 3rem !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
 }
-
-
-/* ============================================================
-   REMOVE DEFAULT STREAMLIT ELEMENTS
-   ============================================================ */
 
 #MainMenu {
-
-    visibility:
-        hidden;
+    visibility: hidden;
 }
-
 
 footer {
-
-    visibility:
-        hidden;
+    visibility: hidden;
 }
-
 
 header {
-
-    background:
-        transparent !important;
+    background: transparent !important;
 }
 
 
-/* ============================================================
-   SIDEBAR
-   ============================================================ */
+/* SIDEBAR */
 
 [data-testid="stSidebar"] {
-
-    background:
-        #ffffff !important;
-
-    border-right:
-        1px solid #e7e9ee !important;
+    background: #ffffff !important;
+    border-right: 1px solid #e7e9ee !important;
 }
-
 
 [data-testid="stSidebar"] > div:first-child {
-
-    background:
-        #ffffff !important;
-
-    padding:
-        1.2rem 0.8rem !important;
+    background: #ffffff !important;
+    padding: 1.2rem 0.8rem !important;
 }
-
-
-/* ============================================================
-   SIDEBAR BRAND
-   ============================================================ */
 
 .brand {
-
-    padding:
-        0.4rem 0.65rem 1.5rem 0.65rem;
+    padding: 0.4rem 0.65rem 1.5rem 0.65rem;
 }
-
 
 .brand-name {
-
-    color:
-        #172033 !important;
-
-    font-size:
-        20px !important;
-
-    font-weight:
-        800 !important;
-
-    letter-spacing:
-        -0.03em !important;
+    color: #172033 !important;
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.03em !important;
 }
-
 
 .brand-subtitle {
-
-    color:
-        #9aa2b1 !important;
-
-    font-size:
-        10px !important;
-
-    margin-top:
-        4px !important;
+    color: #9aa2b1 !important;
+    font-size: 10px !important;
+    margin-top: 4px !important;
 }
-
-
-/* ============================================================
-   SIDEBAR LABEL
-   ============================================================ */
 
 .sidebar-label {
-
-    color:
-        #a0a7b4 !important;
-
-    font-size:
-        9px !important;
-
-    font-weight:
-        800 !important;
-
-    text-transform:
-        uppercase !important;
-
-    letter-spacing:
-        .14em !important;
-
-    padding:
-        0.2rem 0.65rem 0.5rem 0.65rem !important;
+    color: #a0a7b4 !important;
+    font-size: 9px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .14em !important;
+    padding: 0.2rem 0.65rem 0.5rem 0.65rem !important;
 }
 
 
-/* ============================================================
-   NAVIGATION BUTTON
-   ============================================================ */
+/* NAVIGATION */
 
-[data-testid="stSidebar"]
-.stButton {
+[data-testid="stSidebar"] .stButton {
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
-    margin:
-        0 !important;
+[data-testid="stSidebar"] .stButton > button {
+    width: 100% !important;
+    min-height: 42px !important;
+    border: 1px solid transparent !important;
+    border-radius: 10px !important;
+    background: transparent !important;
+    color: #667085 !important;
+    text-align: left !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    margin: 2px 0 !important;
+    padding: 8px 11px !important;
+    box-shadow: none !important;
+}
 
-    padding:
-        0 !important;
+[data-testid="stSidebar"] .stButton > button:hover {
+    background: #f5f7fa !important;
+    color: #172033 !important;
+    border-color: #edf0f4 !important;
+}
+
+[data-testid="stSidebar"] .stButton > button p {
+    color: inherit !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
 }
 
 
-[data-testid="stSidebar"]
-.stButton > button {
+/* ACTIVE NAV */
 
-    width:
-        100% !important;
-
-    min-height:
-        42px !important;
-
-    border:
-        1px solid transparent !important;
-
-    border-radius:
-        10px !important;
-
-    background:
-        transparent !important;
-
-    color:
-        #667085 !important;
-
-    text-align:
-        left !important;
-
-    font-size:
-        12px !important;
-
-    font-weight:
-        600 !important;
-
-    margin:
-        2px 0 !important;
-
-    padding:
-        8px 11px !important;
-
-    box-shadow:
-        none !important;
-}
-
-
-[data-testid="stSidebar"]
-.stButton > button:hover {
-
-    background:
-        #f5f7fa !important;
-
-    color:
-        #172033 !important;
-
-    border-color:
-        #edf0f4 !important;
-}
-
-
-[data-testid="stSidebar"]
-.stButton > button p {
-
-    color:
-        inherit !important;
-
-    font-size:
-        12px !important;
-
-    font-weight:
-        600 !important;
-}
-
-
-/* ============================================================
-   ACTIVE NAV
-   ============================================================ */
-
-[data-testid="stSidebar"]
 .nav-active {
+    background: #edf4ff !important;
+    border-radius: 10px !important;
+    border: 1px solid #dce9ff !important;
+    box-shadow: inset 3px 0 0 #2563eb !important;
+}
 
-    background:
-        #edf4ff !important;
-
-    color:
-        #2563eb !important;
-
-    border:
-        1px solid #dce9ff !important;
-
-    box-shadow:
-        inset 3px 0 0 #2563eb !important;
+.nav-active + div .stButton > button {
+    color: #2563eb !important;
 }
 
 
-[data-testid="stSidebar"]
-.nav-active p {
-
-    color:
-        #2563eb !important;
-}
-
-
-/* ============================================================
-   SIDEBAR FOOTER
-   ============================================================ */
+/* SIDEBAR FOOTER */
 
 .sidebar-footer {
-
-    border-top:
-        1px solid #edf0f3;
-
-    margin-top:
-        1.5rem;
-
-    padding:
-        1rem 0.65rem;
-
-    color:
-        #a0a7b4;
-
-    font-size:
-        9px;
-
-    line-height:
-        1.6;
+    border-top: 1px solid #edf0f3;
+    margin-top: 1.5rem;
+    padding: 1rem 0.65rem;
+    color: #a0a7b4;
+    font-size: 9px;
+    line-height: 1.6;
 }
 
 
-/* ============================================================
-   TOP HEADER
-   ============================================================ */
+/* TOP HEADER */
 
 .topbar {
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        space-between;
-
-    margin-bottom:
-        1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.8rem;
 }
-
 
 .page-title {
-
-    color:
-        #172033 !important;
-
-    font-size:
-        24px !important;
-
-    font-weight:
-        800 !important;
-
-    letter-spacing:
-        -0.03em !important;
-
-    margin:
-        0 !important;
+    color: #172033 !important;
+    font-size: 28px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.03em !important;
+    margin: 0 !important;
 }
-
 
 .page-subtitle {
-
-    color:
-        #9aa2b1 !important;
-
-    font-size:
-        11px !important;
-
-    margin-top:
-        4px !important;
+    color: #9aa2b1 !important;
+    font-size: 11px !important;
+    margin-top: 4px !important;
 }
-
 
 .status-pill {
-
-    display:
-        inline-flex;
-
-    align-items:
-        center;
-
-    gap:
-        6px;
-
-    background:
-        #ecfdf3;
-
-    color:
-        #168653;
-
-    border:
-        1px solid #d7f5e4;
-
-    border-radius:
-        999px;
-
-    padding:
-        6px 10px;
-
-    font-size:
-        10px;
-
-    font-weight:
-        800;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ecfdf3;
+    color: #168653;
+    border: 1px solid #d7f5e4;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 10px;
+    font-weight: 800;
 }
-
 
 .status-dot {
-
-    width:
-        6px;
-
-    height:
-        6px;
-
-    background:
-        #20b875;
-
-    border-radius:
-        50%;
+    width: 6px;
+    height: 6px;
+    background: #20b875;
+    border-radius: 50%;
 }
 
 
-/* ============================================================
-   HERO
-   ============================================================ */
-
-.hero {
-
-    background:
-        linear-gradient(
-            135deg,
-            #172033 0%,
-            #263e6e 60%,
-            #2563eb 100%
-        );
-
-    border-radius:
-        18px;
-
-    padding:
-        26px 30px;
-
-    margin-bottom:
-        22px;
-
-    box-shadow:
-        0 14px 35px
-        rgba(31, 41, 55, .10);
-}
-
-
-.hero-label {
-
-    color:
-        #a9c8ff;
-
-    font-size:
-        9px;
-
-    font-weight:
-        800;
-
-    letter-spacing:
-        .18em;
-}
-
-
-.hero-title {
-
-    color:
-        #ffffff;
-
-    font-size:
-        29px;
-
-    font-weight:
-        800;
-
-    margin-top:
-        6px;
-}
-
-
-.hero-description {
-
-    color:
-        #d9e5f7;
-
-    font-size:
-        12px;
-
-    line-height:
-        1.6;
-
-    max-width:
-        700px;
-
-    margin-top:
-        7px;
-}
-
-
-/* ============================================================
-   KPI CARD
-   ============================================================ */
+/* KPI */
 
 .kpi {
-
-    background:
-        #ffffff;
-
-    border:
-        1px solid #e8ebef;
-
-    border-radius:
-        14px;
-
-    padding:
-        15px 17px;
-
-    min-height:
-        105px;
-
-    box-shadow:
-        0 5px 18px
-        rgba(16, 24, 40, .035);
+    background: #ffffff;
+    border: 1px solid #e8ebef;
+    border-radius: 14px;
+    padding: 15px 17px;
+    min-height: 105px;
+    box-shadow: 0 5px 18px rgba(16, 24, 40, .035);
 }
-
 
 .kpi-label {
-
-    color:
-        #98a2b3;
-
-    font-size:
-        10px;
-
-    font-weight:
-        600;
+    color: #98a2b3;
+    font-size: 10px;
+    font-weight: 600;
 }
-
 
 .kpi-value {
-
-    color:
-        #172033;
-
-    font-size:
-        25px;
-
-    font-weight:
-        800;
-
-    margin-top:
-        8px;
-
-    letter-spacing:
-        -0.03em;
+    color: #172033;
+    font-size: 25px;
+    font-weight: 800;
+    margin-top: 8px;
+    letter-spacing: -0.03em;
 }
-
 
 .kpi-description {
-
-    color:
-        #98a2b3;
-
-    font-size:
-        9px;
-
-    margin-top:
-        4px;
+    color: #98a2b3;
+    font-size: 9px;
+    margin-top: 4px;
 }
-
 
 .kpi-blue {
-
-    border-top:
-        3px solid #2563eb;
+    border-top: 3px solid #2563eb;
 }
-
 
 .kpi-green {
-
-    border-top:
-        3px solid #18a66a;
+    border-top: 3px solid #18a66a;
 }
-
 
 .kpi-orange {
-
-    border-top:
-        3px solid #e89b25;
+    border-top: 3px solid #e89b25;
 }
-
 
 .kpi-red {
-
-    border-top:
-        3px solid #df5757;
+    border-top: 3px solid #df5757;
 }
 
 
-/* ============================================================
-   SECTION
-   ============================================================ */
+/* SECTION */
 
 .section-head {
-
-    display:
-        flex;
-
-    align-items:
-        flex-end;
-
-    justify-content:
-        space-between;
-
-    margin-top:
-        24px;
-
-    margin-bottom:
-        10px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-top: 24px;
+    margin-bottom: 10px;
 }
-
 
 .section-title {
-
-    color:
-        #172033;
-
-    font-size:
-        16px;
-
-    font-weight:
-        800;
+    color: #172033;
+    font-size: 16px;
+    font-weight: 800;
 }
-
 
 .section-description {
-
-    color:
-        #9aa2b1;
-
-    font-size:
-        10px;
-
-    margin-top:
-        3px;
+    color: #9aa2b1;
+    font-size: 10px;
+    margin-top: 3px;
 }
 
 
-/* ============================================================
-   CARD
-   ============================================================ */
+/* CARD */
 
 .dashboard-card {
-
-    background:
-        #ffffff;
-
-    border:
-        1px solid #e8ebef;
-
-    border-radius:
-        15px;
-
-    padding:
-        17px;
-
-    box-shadow:
-        0 5px 18px
-        rgba(16, 24, 40, .035);
-
-    margin-bottom:
-        16px;
+    background: #ffffff;
+    border: 1px solid #e8ebef;
+    border-radius: 15px;
+    padding: 17px;
+    box-shadow: 0 5px 18px rgba(16, 24, 40, .035);
+    margin-bottom: 16px;
 }
-
 
 .card-title {
-
-    color:
-        #252d3d;
-
-    font-size:
-        13px;
-
-    font-weight:
-        800;
+    color: #252d3d;
+    font-size: 13px;
+    font-weight: 800;
 }
-
 
 .card-subtitle {
-
-    color:
-        #9aa2b1;
-
-    font-size:
-        9px;
-
-    margin-top:
-        3px;
-
-    margin-bottom:
-        10px;
+    color: #9aa2b1;
+    font-size: 9px;
+    margin-top: 3px;
+    margin-bottom: 10px;
 }
 
 
-/* ============================================================
-   RISK
-   ============================================================ */
+/* RISK */
 
 .risk-card {
-
-    background:
-        #ffffff;
-
-    border:
-        1px solid #e8ebef;
-
-    border-radius:
-        15px;
-
-    padding:
-        18px;
-
-    height:
-        100%;
-
-    box-shadow:
-        0 5px 18px
-        rgba(16, 24, 40, .035);
+    background: #ffffff;
+    border: 1px solid #e8ebef;
+    border-radius: 15px;
+    padding: 18px;
+    height: 100%;
+    box-shadow: 0 5px 18px rgba(16, 24, 40, .035);
 }
-
 
 .risk-item {
-
-    padding:
-        13px 0;
-
-    border-bottom:
-        1px solid #f0f1f4;
+    padding: 13px 0;
+    border-bottom: 1px solid #f0f1f4;
 }
-
 
 .risk-item:last-child {
-
-    border-bottom:
-        none;
+    border-bottom: none;
 }
-
 
 .risk-row {
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        space-between;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
-
 
 .risk-name {
-
-    color:
-        #667085;
-
-    font-size:
-        11px;
-
-    font-weight:
-        600;
+    color: #667085;
+    font-size: 11px;
+    font-weight: 600;
 }
-
 
 .risk-number {
-
-    color:
-        #172033;
-
-    font-size:
-        20px;
-
-    font-weight:
-        800;
+    color: #172033;
+    font-size: 20px;
+    font-weight: 800;
 }
-
 
 .risk-badge {
-
-    display:
-        inline-block;
-
-    padding:
-        4px 8px;
-
-    border-radius:
-        999px;
-
-    font-size:
-        8px;
-
-    font-weight:
-        800;
-
-    margin-top:
-        4px;
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 8px;
+    font-weight: 800;
+    margin-top: 4px;
 }
-
 
 .risk-high {
-
-    background:
-        #fff0f0;
-
-    color:
-        #c43d3d;
+    background: #fff0f0;
+    color: #c43d3d;
 }
-
 
 .risk-medium {
-
-    background:
-        #fff6e8;
-
-    color:
-        #b87913;
+    background: #fff6e8;
+    color: #b87913;
 }
-
 
 .risk-low {
-
-    background:
-        #eaf8f1;
-
-    color:
-        #168653;
+    background: #eaf8f1;
+    color: #168653;
 }
 
 
-/* ============================================================
-   FILTER
-   ============================================================ */
+/* FILTER */
 
 .filter-card {
-
-    background:
-        #ffffff;
-
-    border:
-        1px solid #e8ebef;
-
-    border-radius:
-        13px;
-
-    padding:
-        10px 13px;
-
-    margin-bottom:
-        15px;
+    background: #ffffff;
+    border: 1px solid #e8ebef;
+    border-radius: 13px;
+    padding: 10px 13px;
+    margin-bottom: 15px;
 }
 
 
-/* ============================================================
-   STREAMLIT METRICS
-   ============================================================ */
+/* METRIC */
 
 div[data-testid="stMetric"] {
-
-    background:
-        #ffffff !important;
-
-    border:
-        1px solid #e8ebef !important;
-
-    border-radius:
-        14px !important;
-
-    padding:
-        14px !important;
-
-    box-shadow:
-        0 5px 18px
-        rgba(16, 24, 40, .035) !important;
+    background: #ffffff !important;
+    border: 1px solid #e8ebef !important;
+    border-radius: 14px !important;
+    padding: 14px !important;
+    box-shadow: 0 5px 18px rgba(16, 24, 40, .035) !important;
 }
-
 
 div[data-testid="stMetricLabel"] {
-
-    color:
-        #98a2b3 !important;
+    color: #98a2b3 !important;
 }
-
 
 div[data-testid="stMetricValue"] {
-
-    color:
-        #172033 !important;
-
-    font-weight:
-        800 !important;
+    color: #172033 !important;
+    font-weight: 800 !important;
 }
 
 
-/* ============================================================
-   INPUT
-   ============================================================ */
+/* INPUT */
 
 .stSelectbox label,
 .stTextInput label {
-
-    color:
-        #667085 !important;
-
-    font-size:
-        10px !important;
-
-    font-weight:
-        700 !important;
+    color: #667085 !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
 }
-
 
 .stSelectbox > div > div,
 .stTextInput > div > div {
-
-    background:
-        #ffffff !important;
-
-    border-color:
-        #e4e7ec !important;
-
-    border-radius:
-        9px !important;
-
-    color:
-        #344054 !important;
+    background: #ffffff !important;
+    border-color: #e4e7ec !important;
+    border-radius: 9px !important;
+    color: #344054 !important;
 }
-
 
 .stSelectbox *,
 .stTextInput * {
-
-    color:
-        #344054 !important;
+    color: #344054 !important;
 }
 
 
-/* ============================================================
-   BUTTON
-   ============================================================ */
+/* BUTTON */
 
 .stButton > button {
-
-    border-radius:
-        9px !important;
-
-    font-weight:
-        700 !important;
-
-    border:
-        1px solid #e4e7ec !important;
-
-    background:
-        #ffffff !important;
-
-    color:
-        #344054 !important;
+    border-radius: 9px !important;
+    font-weight: 700 !important;
+    border: 1px solid #e4e7ec !important;
+    background: #ffffff !important;
+    color: #344054 !important;
 }
 
 
-/* ============================================================
-   DATAFRAME
-   ============================================================ */
+/* DATAFRAME */
 
 [data-testid="stDataFrame"] {
-
-    border-radius:
-        12px !important;
-
-    overflow:
-        hidden !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
 }
 
 
-/* ============================================================
-   ALERT
-   ============================================================ */
+/* ALERT */
 
 [data-testid="stAlert"] {
-
-    border-radius:
-        10px !important;
+    border-radius: 10px !important;
 }
 
 
-/* ============================================================
-   DARK MODE PROTECTION
-   ============================================================ */
+/* DARK MODE */
 
 @media (prefers-color-scheme: dark) {
 
     .stApp {
-
-        background:
-            #f6f7fb !important;
-
-        color:
-            #344054 !important;
+        background: #f6f7fb !important;
+        color: #344054 !important;
     }
-
 
     [data-testid="stSidebar"] {
-
-        background:
-            #ffffff !important;
-
-        color:
-            #344054 !important;
+        background: #ffffff !important;
+        color: #344054 !important;
     }
 
-
-    [data-testid="stSidebar"] * {
-
-        color:
-            inherit;
+    [data-testid="stSidebar"] .stButton > button {
+        background: #ffffff !important;
+        color: #667085 !important;
     }
 
-
-    [data-testid="stSidebar"]
-    .stButton > button {
-
-        background:
-            #ffffff !important;
-
-        color:
-            #667085 !important;
+    [data-testid="stSidebar"] .stButton > button p {
+        color: #667085 !important;
     }
-
-
-    [data-testid="stSidebar"]
-    .stButton > button p {
-
-        color:
-            #667085 !important;
-    }
-
 
     .page-title,
     .section-title,
     .card-title,
     .kpi-value {
-
-        color:
-            #172033 !important;
+        color: #172033 !important;
     }
-
 
     .page-subtitle,
     .section-description,
     .card-subtitle,
     .kpi-label,
     .kpi-description {
-
-        color:
-            #8a93a3 !important;
+        color: #8a93a3 !important;
     }
-
 
     .dashboard-card,
     .risk-card,
     .kpi,
     .filter-card {
-
-        background:
-            #ffffff !important;
-
-        color:
-            #344054 !important;
+        background: #ffffff !important;
+        color: #344054 !important;
     }
-
 
     .stSelectbox > div > div,
     .stTextInput > div > div {
+        background: #ffffff !important;
+        color: #344054 !important;
+    }
 
-        background:
-            #ffffff !important;
+    div[data-testid="stMetric"] {
+        background: #ffffff !important;
+    }
 
-        color:
-            #344054 !important;
+    div[data-testid="stMetricLabel"] {
+        color: #98a2b3 !important;
+    }
+
+    div[data-testid="stMetricValue"] {
+        color: #172033 !important;
     }
 }
 
@@ -1308,7 +646,7 @@ div[data-testid="stMetricValue"] {
 
 
 # ============================================================
-# DATA
+# LOAD DATA
 # ============================================================
 
 @st.cache_data
@@ -1348,7 +686,6 @@ def load_data():
         forecast is not None
         and "date" in forecast.columns
     ):
-
         forecast["date"] = pd.to_datetime(
             forecast["date"],
             errors="coerce"
@@ -1409,12 +746,10 @@ if optimization is None:
 
 
 if segments is None:
-
     segments = pd.DataFrame()
 
 
 if segment_summary is None:
-
     segment_summary = pd.DataFrame()
 
 
@@ -1471,15 +806,13 @@ model_name = safe_text(
 
 
 # ============================================================
-# GLOBAL DATA METRICS
+# GLOBAL METRICS
 # ============================================================
 
 if "actual_sales" in forecast.columns:
 
     total_actual = safe_float(
-        forecast[
-            "actual_sales"
-        ].sum()
+        forecast["actual_sales"].sum()
     )
 
 else:
@@ -1490,9 +823,7 @@ else:
 if "predicted_sales" in forecast.columns:
 
     total_forecast = safe_float(
-        forecast[
-            "predicted_sales"
-        ].sum()
+        forecast["predicted_sales"].sum()
     )
 
 else:
@@ -1525,9 +856,7 @@ else:
 if "recommended_stock" in optimization.columns:
 
     total_recommended_stock = safe_float(
-        optimization[
-            "recommended_stock"
-        ].sum()
+        optimization["recommended_stock"].sum()
     )
 
 else:
@@ -1540,20 +869,13 @@ else:
 # ============================================================
 
 PAGES = [
-
-    ("⌂", "Overview"),
-
-    ("↗", "Forecast"),
-
-    ("▣", "Inventory Analysis"),
-
-    ("◈", "Demand Segmentation"),
-
-    ("✓", "Recommendations"),
-
-    ("✦", "AI Analysis"),
-
-    ("◉", "System Health")
+    "Overview",
+    "Forecast",
+    "Inventory Analysis",
+    "Demand Segmentation",
+    "Recommendations",
+    "AI Analysis",
+    "System Health"
 ]
 
 
@@ -1584,7 +906,6 @@ Demand & Inventory Intelligence
 """
     )
 
-
     html(
         """
 <div class="sidebar-label">
@@ -1593,8 +914,7 @@ Workspace
 """
     )
 
-
-    for icon, page_name in PAGES:
+    for page_name in PAGES:
 
         active = (
             st.session_state.forecastopti_page
@@ -1604,14 +924,12 @@ Workspace
         if active:
 
             st.markdown(
-                f"""
-<div class="nav-active">
-""",
+                '<div class="nav-active">',
                 unsafe_allow_html=True
             )
 
         clicked = st.button(
-            f"{icon}   {page_name}",
+            page_name,
             key=f"nav_{page_name}",
             width="stretch"
         )
@@ -1650,7 +968,7 @@ Workspace
 
 ForecastOpti<br>
 Business Intelligence Dashboard<br>
-Forecasting · Inventory · Segmentation
+Forecasting - Inventory - Segmentation
 
 </div>
 """
@@ -1698,40 +1016,10 @@ System Online
 
 
 # ============================================================
-# HERO
-# ============================================================
-
-html(
-    f"""
-<div class="hero">
-
-<div class="hero-label">
-BUSINESS INTELLIGENCE
-</div>
-
-<div class="hero-title">
-{page}
-</div>
-
-<div class="hero-description">
-Forecast demand, understand demand behavior,
-identify inventory risk, and generate
-inventory recommendations from one dashboard.
-</div>
-
-</div>
-"""
-)
-
-
-# ============================================================
 # CHART HELPERS
 # ============================================================
 
-def chart_layout(
-    fig,
-    height=320
-):
+def chart_layout(fig, height=320):
 
     fig.update_layout(
 
@@ -1841,10 +1129,7 @@ def forecast_chart(data):
     )
 
 
-def category_chart(
-    categories,
-    values
-):
+def category_chart(categories, values):
 
     fig = go.Figure()
 
@@ -1885,11 +1170,7 @@ def category_chart(
     )
 
 
-def risk_chart(
-    high,
-    medium,
-    low
-):
+def risk_chart(high, medium, low):
 
     fig = go.Figure()
 
@@ -1980,14 +1261,10 @@ def store_stock_chart(data):
 
 
 # ============================================================
-# PAGE: OVERVIEW
+# OVERVIEW
 # ============================================================
 
 if page == "Overview":
-
-    # --------------------------------------------------------
-    # KPI
-    # --------------------------------------------------------
 
     k1, k2, k3, k4 = st.columns(4)
 
@@ -2013,7 +1290,6 @@ Observed demand in test data
 """
         )
 
-
     with k2:
 
         html(
@@ -2036,7 +1312,6 @@ Final model performance
 """
         )
 
-
     with k3:
 
         html(
@@ -2058,7 +1333,6 @@ Aggregated inventory recommendation
 </div>
 """
         )
-
 
     with k4:
 
@@ -2083,9 +1357,7 @@ Unique store-item combinations
         )
 
 
-    # --------------------------------------------------------
-    # FILTER
-    # --------------------------------------------------------
+    # DEMAND OVERVIEW
 
     html(
         """
@@ -2108,9 +1380,7 @@ Actual demand compared with model forecast.
     )
 
 
-    filter_a, filter_b, filter_c = st.columns(
-        [1, 1, 1]
-    )
+    filter_a, filter_b, filter_c = st.columns(3)
 
 
     stores = ["All"]
@@ -2205,43 +1475,25 @@ Actual demand compared with model forecast.
     ):
 
         days = {
-
             "Last 30 Days": 30,
-
             "Last 60 Days": 60,
-
             "Last 90 Days": 90
-
         }[period]
 
-
-        max_date = overview_data[
-            "date"
-        ].max()
-
+        max_date = overview_data["date"].max()
 
         min_date = (
             max_date
             -
-            pd.Timedelta(
-                days=days
-            )
+            pd.Timedelta(days=days)
         )
 
-
         overview_data = overview_data[
-            overview_data["date"]
-            >= min_date
+            overview_data["date"] >= min_date
         ]
 
 
-    # --------------------------------------------------------
-    # MAIN CHARTS
-    # --------------------------------------------------------
-
-    left, right = st.columns(
-        [1.65, 1]
-    )
+    left, right = st.columns([1.65, 1])
 
 
     with left:
@@ -2261,7 +1513,6 @@ Actual vs forecast demand over time
 </div>
 """
         )
-
 
         if (
             not overview_data.empty
@@ -2286,11 +1537,7 @@ Actual vs forecast demand over time
                 .sort_values("date")
             )
 
-
-            fig = forecast_chart(
-                daily
-            )
-
+            fig = forecast_chart(daily)
 
             if fig is not None:
 
@@ -2327,22 +1574,17 @@ Store-item distribution by business level
 """
         )
 
-
         if (
             not segment_summary.empty
             and
-            "business_level"
-            in segment_summary.columns
+            "business_level" in segment_summary.columns
             and
-            "store_item_count"
-            in segment_summary.columns
+            "store_item_count" in segment_summary.columns
         ):
 
             segment_chart_data = (
-                segment_summary
-                .copy()
+                segment_summary.copy()
             )
-
 
             fig = category_chart(
                 segment_chart_data[
@@ -2352,7 +1594,6 @@ Store-item distribution by business level
                     "store_item_count"
                 ].tolist()
             )
-
 
             st.plotly_chart(
                 fig,
@@ -2369,9 +1610,7 @@ Store-item distribution by business level
             )
 
 
-    # --------------------------------------------------------
-    # RISK + STOCK
-    # --------------------------------------------------------
+    # INVENTORY INTELLIGENCE
 
     html(
         """
@@ -2394,19 +1633,14 @@ Risk indicators and recommended stock distribution.
     )
 
 
-    risk_col, stock_col = st.columns(
-        [1, 1.6]
-    )
+    risk_col, stock_col = st.columns([1, 1.6])
 
 
-    # --------------------------------------------------------
     # RISK
-    # --------------------------------------------------------
 
     with risk_col:
 
         rec = optimization.copy()
-
 
         if "demand_category" in rec.columns:
 
@@ -2419,33 +1653,21 @@ Risk indicators and recommended stock distribution.
                 .str.strip()
             )
 
-
             high_count = int(
                 category.isin(
-                    [
-                        "high",
-                        "tinggi"
-                    ]
+                    ["high", "tinggi"]
                 ).sum()
             )
-
 
             medium_count = int(
                 category.isin(
-                    [
-                        "medium",
-                        "sedang"
-                    ]
+                    ["medium", "sedang"]
                 ).sum()
             )
 
-
             low_count = int(
                 category.isin(
-                    [
-                        "low",
-                        "rendah"
-                    ]
+                    ["low", "rendah"]
                 ).sum()
             )
 
@@ -2478,7 +1700,6 @@ Current demand priority distribution
             medium_count,
             low_count
         )
-
 
         st.plotly_chart(
             fig,
@@ -2560,9 +1781,7 @@ Stable
         )
 
 
-    # --------------------------------------------------------
     # STOCK
-    # --------------------------------------------------------
 
     with stock_col:
 
@@ -2586,8 +1805,7 @@ Aggregated recommended inventory level
         if (
             "store_id" in optimization.columns
             and
-            "recommended_stock"
-            in optimization.columns
+            "recommended_stock" in optimization.columns
         ):
 
             store_stock = (
@@ -2606,11 +1824,9 @@ Aggregated recommended inventory level
                 .head(8)
             )
 
-
             fig = store_stock_chart(
                 store_stock
             )
-
 
             if fig is not None:
 
@@ -2622,7 +1838,6 @@ Aggregated recommended inventory level
                     }
                 )
 
-
         else:
 
             st.info(
@@ -2630,9 +1845,7 @@ Aggregated recommended inventory level
             )
 
 
-    # --------------------------------------------------------
-    # MODEL SNAPSHOT
-    # --------------------------------------------------------
+    # MODEL PERFORMANCE
 
     html(
         """
@@ -2663,12 +1876,10 @@ Final model compared with the baseline.
         f"{test_mae:.2f}"
     )
 
-
     m2.metric(
         "RMSE",
         f"{test_rmse:.2f}"
     )
-
 
     m3.metric(
         "WAPE",
@@ -2700,7 +1911,7 @@ Final model compared with the baseline.
 
 
 # ============================================================
-# PAGE: FORECAST
+# FORECAST
 # ============================================================
 
 elif page == "Forecast":
@@ -2814,11 +2025,9 @@ Compare actual demand with model prediction.
     else:
 
         if (
-            "actual_sales"
-            in filtered.columns
+            "actual_sales" in filtered.columns
             and
-            "predicted_sales"
-            in filtered.columns
+            "predicted_sales" in filtered.columns
         ):
 
             actual = safe_float(
@@ -2827,13 +2036,11 @@ Compare actual demand with model prediction.
                 ].sum()
             )
 
-
             predicted = safe_float(
                 filtered[
                     "predicted_sales"
                 ].sum()
             )
-
 
             error = actual - predicted
 
@@ -2846,12 +2053,10 @@ Compare actual demand with model prediction.
                 integer(actual)
             )
 
-
             b.metric(
                 "Forecast Demand",
                 integer(predicted)
             )
-
 
             c.metric(
                 "Forecast Error",
@@ -2875,9 +2080,7 @@ Compare actual demand with model prediction.
                 )
 
 
-                fig = forecast_chart(
-                    daily
-                )
+                fig = forecast_chart(daily)
 
 
                 st.plotly_chart(
@@ -2922,7 +2125,7 @@ Detailed prediction records.
 
 
 # ============================================================
-# PAGE: INVENTORY ANALYSIS
+# INVENTORY ANALYSIS
 # ============================================================
 
 elif page == "Inventory Analysis":
@@ -3167,27 +2370,17 @@ Demand Profile
         detail = pd.DataFrame(
             {
                 "Metric": [
-
                     "Cluster",
-
                     "Demand Segment",
-
                     "Average Demand",
-
                     "Demand Variability",
-
                     "Coefficient of Variation",
-
                     "Forecast Error",
-
                     "Absolute Forecast Error",
-
                     "Forecast Demand"
-
                 ],
 
                 "Value": [
-
                     safe_text(
                         seg.get(
                             "cluster_k3",
@@ -3243,7 +2436,6 @@ Demand Profile
                             "-"
                         )
                     )
-
                 ]
             }
         )
@@ -3365,7 +2557,7 @@ line-height:1.7;
 
 
 # ============================================================
-# PAGE: DEMAND SEGMENTATION
+# DEMAND SEGMENTATION
 # ============================================================
 
 elif page == "Demand Segmentation":
@@ -3402,11 +2594,9 @@ across demand characteristics.
 
 
     if (
-        "business_level"
-        not in segment_summary.columns
+        "business_level" not in segment_summary.columns
         or
-        "store_item_count"
-        not in segment_summary.columns
+        "store_item_count" not in segment_summary.columns
     ):
 
         st.error(
@@ -3439,10 +2629,7 @@ across demand characteristics.
     high = safe_int(
         summary.loc[
             labels.isin(
-                [
-                    "high",
-                    "tinggi"
-                ]
+                ["high", "tinggi"]
             ),
             "store_item_count"
         ].sum()
@@ -3452,10 +2639,7 @@ across demand characteristics.
     medium = safe_int(
         summary.loc[
             labels.isin(
-                [
-                    "medium",
-                    "sedang"
-                ]
+                ["medium", "sedang"]
             ),
             "store_item_count"
         ].sum()
@@ -3465,10 +2649,7 @@ across demand characteristics.
     low = safe_int(
         summary.loc[
             labels.isin(
-                [
-                    "low",
-                    "rendah"
-                ]
+                ["low", "rendah"]
             ),
             "store_item_count"
         ].sum()
@@ -3483,18 +2664,15 @@ across demand characteristics.
         f"{total:,}"
     )
 
-
     b.metric(
         "High",
         f"{high:,}"
     )
 
-
     c.metric(
         "Medium",
         f"{medium:,}"
     )
-
 
     d.metric(
         "Low",
@@ -3502,9 +2680,7 @@ across demand characteristics.
     )
 
 
-    left, right = st.columns(
-        [1, 1.5]
-    )
+    left, right = st.columns([1, 1.5])
 
 
     with left:
@@ -3517,7 +2693,6 @@ across demand characteristics.
                 "store_item_count"
             ].tolist()
         )
-
 
         st.plotly_chart(
             fig,
@@ -3591,7 +2766,6 @@ Store-Item Detail
 
             )
 
-
             detail = detail[
                 mask
             ]
@@ -3604,7 +2778,7 @@ Store-Item Detail
 
 
 # ============================================================
-# PAGE: RECOMMENDATIONS
+# RECOMMENDATIONS
 # ============================================================
 
 elif page == "Recommendations":
@@ -3644,6 +2818,7 @@ recommended inventory level.
 
 
     categories = ["All"]
+
 
     if "demand_category" in rec.columns:
 
@@ -3715,7 +2890,6 @@ recommended inventory level.
 
         )
 
-
         rec = rec[
             mask
         ]
@@ -3724,8 +2898,7 @@ recommended inventory level.
     if (
         priority != "All"
         and
-        "demand_category"
-        in rec.columns
+        "demand_category" in rec.columns
     ):
 
         rec = rec[
@@ -3785,30 +2958,21 @@ recommended inventory level.
 
         high = int(
             category.isin(
-                [
-                    "high",
-                    "tinggi"
-                ]
+                ["high", "tinggi"]
             ).sum()
         )
 
 
         medium = int(
             category.isin(
-                [
-                    "medium",
-                    "sedang"
-                ]
+                ["medium", "sedang"]
             ).sum()
         )
 
 
         low = int(
             category.isin(
-                [
-                    "low",
-                    "rendah"
-                ]
+                ["low", "rendah"]
             ).sum()
         )
 
@@ -3827,18 +2991,15 @@ recommended inventory level.
         f"{high:,}"
     )
 
-
     b.metric(
         "Medium",
         f"{medium:,}"
     )
 
-
     c.metric(
         "Low",
         f"{low:,}"
     )
-
 
     d.metric(
         "Filtered",
@@ -3847,23 +3008,14 @@ recommended inventory level.
 
 
     columns = [
-
         "store_id",
-
         "item_id",
-
         "demand_category",
-
         "avg_forecast_demand",
-
         "max_forecast_demand",
-
         "demand_std",
-
         "demand_buffer",
-
         "recommended_stock"
-
     ]
 
 
@@ -3883,15 +3035,13 @@ recommended inventory level.
     else:
 
         display_dataframe(
-            rec[
-                columns
-            ],
+            rec[columns],
             height=560
         )
 
 
 # ============================================================
-# PAGE: AI ANALYSIS
+# AI ANALYSIS
 # ============================================================
 
 elif page == "AI Analysis":
@@ -4112,7 +3262,7 @@ Segment Business View
 
 
 # ============================================================
-# PAGE: SYSTEM HEALTH
+# SYSTEM HEALTH
 # ============================================================
 
 elif page == "System Health":
