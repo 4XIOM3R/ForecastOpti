@@ -1,0 +1,4 @@
+cluster_k3,business_level,store_item_count,average_demand,demand_variability,coefficient_of_variation,forecast_error,absolute_forecast_error,forecast_demand,recommended_stock
+2,Rendah,728,14.26,4.53,0.32,-8.02,8.35,22.28,42.12
+0,Sedang,1006,26.03,6.75,0.26,2.25,5.04,23.78,43.64
+1,Tinggi,766,38.78,9.52,0.25,14.74,14.74,24.03,43.89
