@@ -4,16 +4,13 @@ from pathlib import Path
 from textwrap import dedent
 
 
-# ============================================================
+
 # FORECASTOPTI
 # STREAMLIT BUSINESS INTELLIGENCE DASHBOARD
-# ============================================================
 
 
-# ============================================================
+
 # PROJECT PATH
-# ============================================================
-
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 
 FORECAST_DIR = PROJECT_DIR / "outputs" / "forecasts"
@@ -21,22 +18,14 @@ EVALUATION_DIR = PROJECT_DIR / "outputs" / "evaluation"
 OPTIMIZATION_DIR = PROJECT_DIR / "outputs" / "optimization"
 CLUSTERING_DIR = PROJECT_DIR / "outputs" / "clustering"
 
-
-# ============================================================
 # PAGE CONFIG
-# ============================================================
-
 st.set_page_config(
     page_title="ForecastOpti",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-
-# ============================================================
 # HTML RENDERER
-# ============================================================
-
 def html(markup):
     """
     Render HTML tanpa indentation yang menyebabkan
@@ -56,11 +45,7 @@ def html(markup):
         unsafe_allow_html=True
     )
 
-
-# ============================================================
 # SAFE DATAFRAME
-# ============================================================
-
 def safe_dataframe(df):
     """
     Mengamankan DataFrame sebelum dikirim ke Streamlit.
@@ -98,10 +83,7 @@ def safe_dataframe(df):
 
     return result
 
-
-# ============================================================
 # DATAFRAME DISPLAY
-# ============================================================
 
 def display_dataframe(
     df,
@@ -124,11 +106,7 @@ def display_dataframe(
         **kwargs
     )
 
-
-# ============================================================
 # VALUE HELPERS
-# ============================================================
-
 def safe_float(
     value,
     default=0
@@ -200,10 +178,7 @@ def number(value):
     return f"{safe_float(value):,.2f}"
 
 
-# ============================================================
 # CSV LOADER
-# ============================================================
-
 def load_csv(
     directory,
     filename
@@ -215,18 +190,12 @@ def load_csv(
         return None
 
     return pd.read_csv(path)
-
-
-# ============================================================
+    
 # CUSTOM CSS
-# ============================================================
-
 html("""
 <style>
 
-/* ============================================================
-   GLOBAL VARIABLES
-   ============================================================ */
+/* GLOBAL VARIABLES */
 
 :root {
 
@@ -250,9 +219,7 @@ html("""
 }
 
 
-/* ============================================================
-   MAIN APPLICATION
-   ============================================================ */
+/*MAIN APPLICATION */
 
 .stApp {
 
