@@ -28,7 +28,6 @@ CLUSTERING_DIR = PROJECT_DIR / "outputs" / "clustering"
 
 st.set_page_config(
     page_title="ForecastOpti",
-    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded",
 )
