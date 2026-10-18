@@ -40,7 +40,7 @@ body,
 
 .block-container {
     max-width: 1500px !important;
-    padding: 28px 34px 50px 34px !important;
+    padding: 30px 36px 52px 36px !important;
 }
 
 #MainMenu {
@@ -81,13 +81,13 @@ header {
 
 .brand-text {
     color: #6b7280 !important;
-    font-size: 10px !important;
+    font-size: 12px !important;
     margin-top: 5px !important;
 }
 
 .sidebar-title {
     color: #9ca3af !important;
-    font-size: 9px !important;
+    font-size: 11px !important;
     font-weight: 800 !important;
     letter-spacing: .12em !important;
     text-transform: uppercase !important;
@@ -115,7 +115,7 @@ header {
     color: #374151 !important;
     text-align: left !important;
 
-    font-size: 12px !important;
+    font-size: 14px !important;
     font-weight: 600 !important;
 
     box-shadow: none !important;
@@ -129,7 +129,7 @@ header {
 
 [data-testid="stSidebar"] .stButton > button p {
     color: #374151 !important;
-    font-size: 12px !important;
+    font-size: 14px !important;
 }
 
 
@@ -155,7 +155,7 @@ header {
     padding: 16px 10px;
 
     color: #9ca3af !important;
-    font-size: 9px;
+    font-size: 11px;
     line-height: 1.7;
 }
 
@@ -180,7 +180,7 @@ header {
 
 .page-subtitle {
     color: #6b7280 !important;
-    font-size: 11px !important;
+    font-size: 14px !important;
     margin-top: 7px !important;
 }
 
@@ -197,7 +197,7 @@ header {
 
     color: #374151 !important;
 
-    font-size: 9px;
+    font-size: 12px;
     font-weight: 700;
 }
 
@@ -210,23 +210,31 @@ header {
     border: 1px solid #e5e7eb;
     border-radius: 14px;
 
-    padding: 17px 18px;
+    padding: 20px 20px;
 
-    min-height: 112px;
+    min-height: 132px;
 
     box-shadow:
-        0 3px 12px rgba(17, 24, 39, 0.035);
+        0 5px 18px rgba(17, 24, 39, 0.055);
+    transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.kpi:hover,
+.segment-card:hover,
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 9px 24px rgba(17, 24, 39, 0.09);
 }
 
 .kpi-label {
     color: #6b7280 !important;
-    font-size: 10px !important;
+    font-size: 13px !important;
     font-weight: 600 !important;
 }
 
 .kpi-value {
     color: #111827 !important;
-    font-size: 27px !important;
+    font-size: 30px !important;
     font-weight: 850 !important;
     letter-spacing: -0.04em !important;
     margin-top: 8px !important;
@@ -234,7 +242,7 @@ header {
 
 .kpi-description {
     color: #9ca3af !important;
-    font-size: 9px !important;
+    font-size: 12px !important;
     margin-top: 4px !important;
 }
 
@@ -264,14 +272,14 @@ header {
 
 .section-title {
     color: #111827 !important;
-    font-size: 17px !important;
+    font-size: 20px !important;
     font-weight: 800 !important;
     letter-spacing: -0.025em !important;
 }
 
 .section-description {
     color: #6b7280 !important;
-    font-size: 10px !important;
+    font-size: 13px !important;
     margin-top: 4px !important;
 }
 
@@ -292,13 +300,13 @@ header {
 
 .card-title {
     color: #111827 !important;
-    font-size: 13px !important;
+    font-size: 15px !important;
     font-weight: 800 !important;
 }
 
 .card-description {
     color: #6b7280 !important;
-    font-size: 9px !important;
+    font-size: 12px !important;
     margin-top: 4px !important;
 }
 
@@ -318,7 +326,7 @@ header {
 
 .segment-name {
     color: #6b7280 !important;
-    font-size: 10px !important;
+    font-size: 12px !important;
     font-weight: 700 !important;
 }
 
@@ -332,7 +340,7 @@ header {
 
 .segment-percent {
     color: #6b7280 !important;
-    font-size: 9px !important;
+    font-size: 12px !important;
     margin-top: 2px !important;
 }
 
@@ -354,15 +362,38 @@ header {
 
 .insight-title {
     color: #111827 !important;
-    font-size: 10px !important;
+    font-size: 13px !important;
     font-weight: 800 !important;
 }
 
 .insight-text {
     color: #4b5563 !important;
-    font-size: 10px !important;
+    font-size: 13px !important;
     line-height: 1.6 !important;
     margin-top: 4px !important;
+}
+
+.overview-banner {
+    background: linear-gradient(115deg, #111827 0%, #1e3a5f 58%, #2563eb 100%);
+    border-radius: 18px;
+    color: #ffffff;
+    margin: 0 0 22px 0;
+    padding: 24px 28px;
+    box-shadow: 0 12px 28px rgba(30, 58, 95, 0.18);
+}
+
+.overview-banner-title {
+    color: #ffffff !important;
+    font-size: 23px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.03em !important;
+}
+
+.overview-banner-text {
+    color: #dbeafe !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    margin-top: 6px !important;
 }
 
 
@@ -395,7 +426,7 @@ div[data-testid="stMetricValue"] {
 .stSelectbox label,
 .stTextInput label {
     color: #374151 !important;
-    font-size: 10px !important;
+    font-size: 13px !important;
     font-weight: 700 !important;
 }
 
@@ -444,6 +475,21 @@ div[data-testid="stMetricValue"] {
 
 [data-testid="stAlert"] {
     border-radius: 10px !important;
+}
+
+@media (max-width: 768px) {
+    .block-container {
+        padding: 22px 16px 36px 16px !important;
+    }
+
+    .top-header {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .page-title {
+        font-size: 26px !important;
+    }
 }
 
 
@@ -1242,6 +1288,179 @@ def risk_chart(high, medium, low):
 
 if page == "Overview":
 
+    st.markdown(
+        """
+<div class="overview-banner">
+<div class="overview-banner-title">Your demand, at a glance</div>
+<div class="overview-banner-text">
+Filter by store, product, and date to explore forecast accuracy
+and inventory recommendations for the scope you need.
+</div>
+</div>
+""",
+        unsafe_allow_html=True
+    )
+
+    filter_store_options = ["All stores"]
+    if "store_id" in forecast.columns:
+        filter_store_options += sorted(
+            forecast["store_id"].dropna().astype(str).unique().tolist()
+        )
+    filter_columns = st.columns([1, 1, 1.6, 0.65])
+    with filter_columns[3]:
+        st.markdown(
+            '<div style="height: 27px"></div>',
+            unsafe_allow_html=True
+        )
+        if st.button(
+            "Reset",
+            key="reset_overview_filters",
+            help="Clear the store, item, and date filters."
+        ):
+            for filter_key in (
+                "overview_store_filter",
+                "overview_item_filter",
+                "overview_date_filter"
+            ):
+                st.session_state.pop(filter_key, None)
+            st.rerun()
+
+    with filter_columns[0]:
+        selected_overview_store = st.selectbox(
+            "Store",
+            filter_store_options,
+            key="overview_store_filter"
+        )
+
+    scoped_forecast = forecast.copy()
+    if (
+        selected_overview_store != "All stores"
+        and "store_id" in scoped_forecast.columns
+    ):
+        scoped_forecast = scoped_forecast[
+            scoped_forecast["store_id"].astype(str) == selected_overview_store
+        ]
+
+    filter_item_options = ["All items"]
+    if "item_id" in scoped_forecast.columns:
+        filter_item_options += sorted(
+            scoped_forecast["item_id"].dropna().astype(str).unique().tolist()
+        )
+    with filter_columns[1]:
+        selected_overview_item = st.selectbox(
+            "Item",
+            filter_item_options,
+            key="overview_item_filter"
+        )
+    if (
+        selected_overview_item != "All items"
+        and "item_id" in scoped_forecast.columns
+    ):
+        scoped_forecast = scoped_forecast[
+            scoped_forecast["item_id"].astype(str) == selected_overview_item
+        ]
+
+    if "date" in forecast.columns:
+        available_dates = forecast["date"].dropna()
+        if not available_dates.empty:
+            date_min = available_dates.min().date()
+            date_max = available_dates.max().date()
+            with filter_columns[2]:
+                selected_date_range = st.date_input(
+                    "Date range",
+                    value=(date_min, date_max),
+                    min_value=date_min,
+                    max_value=date_max,
+                    key="overview_date_filter"
+                )
+            if (
+                isinstance(selected_date_range, (tuple, list))
+                and len(selected_date_range) == 2
+                and all(selected_date_range)
+            ):
+                start_date, end_date = selected_date_range
+                scoped_forecast = scoped_forecast[
+                    scoped_forecast["date"].dt.date.between(start_date, end_date)
+                ]
+
+    filtered_optimization = optimization.copy()
+    if (
+        selected_overview_store != "All stores"
+        and "store_id" in filtered_optimization.columns
+    ):
+        filtered_optimization = filtered_optimization[
+            filtered_optimization["store_id"].astype(str) == selected_overview_store
+        ]
+    if (
+        selected_overview_item != "All items"
+        and "item_id" in filtered_optimization.columns
+    ):
+        filtered_optimization = filtered_optimization[
+            filtered_optimization["item_id"].astype(str) == selected_overview_item
+        ]
+
+    overview_segments = segments.copy()
+    if (
+        selected_overview_store != "All stores"
+        and "store_id" in overview_segments.columns
+    ):
+        overview_segments = overview_segments[
+            overview_segments["store_id"].astype(str) == selected_overview_store
+        ]
+    if (
+        selected_overview_item != "All items"
+        and "item_id" in overview_segments.columns
+    ):
+        overview_segments = overview_segments[
+            overview_segments["item_id"].astype(str) == selected_overview_item
+        ]
+    if (
+        not overview_segments.empty
+        and "demand_segment" in overview_segments.columns
+    ):
+        overview_segment_summary = (
+            overview_segments
+            .groupby("demand_segment")
+            .size()
+            .reset_index(name="store_item_count")
+            .rename(columns={"demand_segment": "business_level"})
+        )
+    else:
+        overview_segment_summary = pd.DataFrame()
+
+    scoped_actual = (
+        pd.to_numeric(scoped_forecast["actual_sales"], errors="coerce").fillna(0)
+        if "actual_sales" in scoped_forecast.columns
+        else pd.Series(dtype=float)
+    )
+    scoped_predicted = (
+        pd.to_numeric(scoped_forecast["predicted_sales"], errors="coerce").fillna(0)
+        if "predicted_sales" in scoped_forecast.columns
+        else pd.Series(dtype=float)
+    )
+    actual_total = scoped_actual.sum()
+    forecast_total = scoped_predicted.sum()
+    scoped_wape = (
+        (scoped_actual - scoped_predicted).abs().sum() / actual_total * 100
+        if actual_total
+        else 0
+    )
+    recommended_stock = (
+        pd.to_numeric(
+            filtered_optimization["recommended_stock"],
+            errors="coerce"
+        ).fillna(0).sum()
+        if "recommended_stock" in filtered_optimization.columns
+        else 0
+    )
+    total_store_items = (
+        filtered_optimization[["store_id", "item_id"]]
+        .drop_duplicates()
+        .shape[0]
+        if {"store_id", "item_id"}.issubset(filtered_optimization.columns)
+        else 0
+    )
+
     k1, k2, k3, k4 = st.columns(4)
 
 
@@ -1260,7 +1479,7 @@ Actual Sales
 </div>
 
 <div class="kpi-description">
-Observed demand in test data
+Actual demand in selected scope
 </div>
 
 </div>
@@ -1280,7 +1499,7 @@ Forecast WAPE
 </div>
 
 <div class="kpi-value">
-{wape:.2f}%
+{scoped_wape:.2f}%
 </div>
 
 <div class="kpi-description">
@@ -1308,7 +1527,7 @@ Recommended Stock
 </div>
 
 <div class="kpi-description">
-Aggregated inventory recommendation
+Stock for selected store-items
 </div>
 
 </div>
@@ -1352,7 +1571,7 @@ Demand Overview
 </div>
 
 <div class="section-description">
-Actual demand compared with model forecast.
+Actual demand versus forecast. Use the filters above to explore a specific scope.
 </div>
 
 </div>
@@ -1386,27 +1605,29 @@ Actual versus predicted demand over time
         )
 
 
-        daily = (
-            forecast
-            .groupby("date")[
-                [
-                    "actual_sales",
-                    "predicted_sales"
+        if scoped_forecast.empty:
+            st.info("No forecast rows match these filters.")
+        else:
+            daily = (
+                scoped_forecast
+                .groupby("date")[
+                    [
+                        "actual_sales",
+                        "predicted_sales"
+                    ]
                 ]
-            ]
-            .sum()
-            .reset_index()
-            .sort_values("date")
-        )
+                .sum()
+                .reset_index()
+                .sort_values("date")
+            )
 
-
-        st.plotly_chart(
-            forecast_chart(daily),
-            use_container_width=True,
-            config={
-                "displayModeBar": False
-            }
-        )
+            st.plotly_chart(
+                forecast_chart(daily),
+                use_container_width=True,
+                config={
+                    "displayModeBar": False
+                }
+            )
 
 
     # SEGMENTATION
@@ -1432,17 +1653,17 @@ Store-item distribution by demand level
 
 
         if (
-            not segment_summary.empty
+            not overview_segment_summary.empty
             and
             "business_level"
-            in segment_summary.columns
+            in overview_segment_summary.columns
             and
             "store_item_count"
-            in segment_summary.columns
+            in overview_segment_summary.columns
         ):
 
             summary = (
-                segment_summary
+                overview_segment_summary
                 .copy()
             )
 
@@ -1609,14 +1830,14 @@ Risk distribution and recommended inventory level.
     with risk_col:
 
         category = (
-            optimization[
+            filtered_optimization[
                 "demand_category"
             ]
             .astype(str)
             .str.lower()
             .str.strip()
             if "demand_category"
-            in optimization.columns
+            in filtered_optimization.columns
             else pd.Series(dtype=str)
         )
 
@@ -1704,14 +1925,14 @@ Aggregated recommended inventory
 
         if (
             "store_id"
-            in optimization.columns
+            in filtered_optimization.columns
             and
             "recommended_stock"
-            in optimization.columns
+            in filtered_optimization.columns
         ):
 
             store_stock = (
-                optimization
+                filtered_optimization
                 .groupby(
                     "store_id",
                     as_index=False
@@ -2558,10 +2779,26 @@ Prioritized inventory recommendations by store-item.
         ascending=False
     )
 
-
-    st.metric(
-        "Filtered Recommendations",
-        f"{len(rec):,}"
+    metric_count, metric_stock = st.columns(2)
+    metric_count.metric(
+        "Matching store-items",
+        f"{len(rec):,}",
+        help="Number of recommendations matching the selected filters."
+    )
+    filtered_stock = (
+        pd.to_numeric(
+            rec["recommended_stock"],
+            errors="coerce"
+        )
+        .fillna(0)
+        .sum()
+        if "recommended_stock" in rec.columns
+        else 0
+    )
+    metric_stock.metric(
+        "Recommended stock in results",
+        fmt_number(filtered_stock),
+        help="Total recommended stock for the rows currently shown."
     )
 
 
@@ -2584,12 +2821,21 @@ Prioritized inventory recommendations by store-item.
     ]
 
 
-    st.dataframe(
-        rec[columns],
-        hide_index=True,
-        use_container_width=True,
-        height=570
-    )
+    if rec.empty:
+        st.info(
+            "Tidak ada rekomendasi yang cocok. Coba ubah kata pencarian "
+            "atau pilih kategori permintaan lain."
+        )
+    else:
+        st.caption(
+            "Diurutkan dari rekomendasi stok tertinggi ke terendah."
+        )
+        st.dataframe(
+            rec[columns],
+            hide_index=True,
+            use_container_width=True,
+            height=570
+        )
 
 
 # AI
