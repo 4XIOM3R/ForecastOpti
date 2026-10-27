@@ -1,0 +1,24 @@
+services:
+  dashboard:
+    build:
+      context: .
+    ports:
+      - "8080:80"
+    environment:
+      APP_NAME: ForecastOpti
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8080
+      SESSION_DRIVER: file
+      CACHE_STORE: file
+      QUEUE_CONNECTION: sync
+      FORECASTOPTI_API_URL: ${FORECASTOPTI_API_URL:-http://host.docker.internal:8000}
+      FORECASTOPTI_API_TIMEOUT: ${FORECASTOPTI_API_TIMEOUT:-15}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - dashboard_storage:/var/www/html/storage
+    restart: unless-stopped
+
+volumes:
+  dashboard_storage:
